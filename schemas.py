@@ -21,3 +21,6 @@ class SignupRequest(BaseModel):
 class OTPVerifyRequest(BaseModel):
     otp: str = Field(..., min_length=6, max_length=6, description="6-digit OTP")
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str

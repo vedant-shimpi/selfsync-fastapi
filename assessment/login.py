@@ -6,7 +6,7 @@ from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
 from datetime import datetime, timezone, timedelta
 import uuid
-from schemas import SignupRequest, OTPVerifyRequest
+from schemas import SignupRequest, OTPVerifyRequest, UserLogin
 from database import get_db
 import random
 import string
@@ -140,7 +140,7 @@ async def verify_otp(request: OTPVerifyRequest, db: Session = Depends(get_db)):
         email_message = email_template.replace("{first_name}", first_name.capitalize()) \
                                         .replace("{username}", username)
 
-        send_email(email, "Welcome! Your new username", email_message)
+        send_email(email, "Thank You for Joining Us", email_message)
 
         return {"success": True, "message": "OTP verified and user registered successfully."}
 
@@ -148,3 +148,42 @@ async def verify_otp(request: OTPVerifyRequest, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
+def create_access_token(data: dict, expires_delta: timedelta):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + expires_delta
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+@router.post("/login")
+def login(user: UserLogin, db: Session = Depends(get_db)):
+
+    check_query = text("SELECT id, first_name, email, password FROM users WHERE email = :email")
+    db_user = db.execute(check_query, {"email": user.email}).fetchone()
+
+    if not db_user:
+        return {"success": False, "message": "Invalid email or password"}
+
+    user_id, first_name, email, hashed_password  = db_user
+
+    # Verify password
+    if not pwd_context.verify(user.password, hashed_password):
+        return {"success": False, "message": "Invalid email or password"}
+
+    # Update last login time
+    update_query = text("UPDATE users SET last_login = :last_login WHERE id = :id")
+    db.execute(update_query, {"last_login": datetime.now(timezone.utc), "id": user_id})
+    db.commit()
+
+    # Generate JWT Token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(data={"sub": email}, expires_delta=access_token_expires)
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "email": email,
+            "first_name": first_name
+        },
+        "message": "Login successful",
+    }
