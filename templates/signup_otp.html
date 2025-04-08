@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .email-container {
+      max-width: 600px;
+      width: 100%;
+      background-color: #ffffff;
+      margin: auto;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background-color: #ff6f00;
+      color: white;
+      text-align: center;
+      padding: 30px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .content {
+      padding: 20px 30px;
+      text-align: center;
+      color: #333;
+      font-size: 16px;
+    }
+    .content h2{
+        text-align: left;
+    }
+    .otp-box {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      background: #f8f8f8;
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+    }
+    .footer {
+      background-color: #ff6f00;
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: white;
+    }
+    .footer a {
+      color: white;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Centered Email Container -->
+<table class="email-container" cellpadding="0" cellspacing="0" border="0">
+  <!-- Header -->
+  <tr>
+    <td class="header">
+      OTP Verification
+      <p style="font-size: 16px; margin: 5px 0 0;">Your One-Time Password (OTP) is here!</p>
+    </td>
+  </tr>
+
+  <!-- Content -->
+  <tr>
+    <td class="content">
+      <h2>Hello {first_name},</h2>
+      <h3 style="color: #101010; font-size: 20px;">Your signup OTP for verification is</h3>
+      <div class="otp-box">{otp}</div>
+      <p>Please use this OTP to complete your authentication process. It is valid for 3 minutes.</p>
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td class="footer">
+      <p>If you did not request this OTP, please ignore this email.</p>
+      <p>Need help? <a href="mailto:support@digikorejingles.com">support@digikorejingles.com</a></p>
+      <p>&copy; 2025 Digikore Studios Limited. All rights reserved.</p>
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

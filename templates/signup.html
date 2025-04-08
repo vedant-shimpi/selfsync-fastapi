@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>signup Confirmation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .email-container {
+      max-width: 600px;
+      width: 100%;
+      background-color: #ffffff;
+      margin: auto;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background-color: #ff801df5;
+      color: white;
+      text-align: center;
+      padding: 30px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .content {
+      padding: 20px 30px;
+      text-align: left;
+      color: #333;
+      font-size: 17px;
+    }
+    .content p {
+      margin: 10px 0;
+      line-height: 1.5;
+    }
+    .button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .button {
+      display: inline-block;
+      background-color: #FF6F00;
+      color: white;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 25px;
+      font-size: 17px;
+      font-weight: bold;
+    }
+    .user{
+      text-align: left;
+    }
+    .button:hover {
+      background-color: #E65100;
+    }
+    .footer {
+      background-color: #ff801df5;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      color: black;
+    }
+    .footer a{
+        color: black;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Centered Email Container -->
+<table class="email-container" cellpadding="0" cellspacing="0" border="0">
+  <!-- Header -->
+  <tr>
+    <td class="header">
+      Thank You for Joining Us!
+    </td>
+  </tr>
+
+  <!-- Content -->
+  <tr>
+    <td class="content">
+      <p class="user">Dear {first_name},</p>
+      <p>Your username is {username}</p>
+      <p>If you need immediate assistance, feel free to reach out to us directly.</p>
+      <div class="button-container">
+        <a href="https://digikore.com/brand-jingle/" class="button" style="  display: inline-block;
+        padding: 10px 20px;
+        background-color: #ff6f00;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 18px;">Visit Our Website</a>
+      </div>
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td class="footer">
+        <p>Thank you for choosing <b>Digikore Jingle!</b> 🎵</p>
+        <p>Need help? <a href="mailto:support@digikorejingles.com">support@digikorejingles.com</a></p>
+        <p>&copy; 2025 Brand Jingle. All rights reserved.</p>
+      </td>
+  </tr>
+</table>
+
+</body>
+</html>
