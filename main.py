@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from assessment.login import router as login_router
 from assessment.email import router as email_router
+from assessment.user import router as user_router
 from database import engine, Base
 
 
@@ -30,3 +31,4 @@ Base.metadata.create_all(bind=engine)
 # Include routers
 app.include_router(login_router, tags=["Login"])
 app.include_router(email_router, tags=["Email"])
+app.include_router(user_router, tags=["User"])
