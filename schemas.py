@@ -25,3 +25,26 @@ class OTPVerifyRequest(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+class UpdateUserProfileRequest(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    user_type: Optional[str] = None
+    address: Optional[str] = None
+    mobile: Optional[str] = None
+    orgnization: Optional[str] = None
+    company_name: Optional[str] = None
+    secondary_email: Optional[str] = None
+    pin_code: Optional[str] = None
+    gender: Optional[str] = None
+
+    @field_validator("secondary_email", mode="before")
+    @classmethod
+    def validate_secondary_email(cls, v):
+        if v in (None, ""):
+            return None 
+        try:
+            from email_validator import validate_email
+            return validate_email(v).email  
+        except Exception:
+            raise ValueError("Invalid email format for secondary_email")
