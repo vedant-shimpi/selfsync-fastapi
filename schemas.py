@@ -5,17 +5,18 @@ from datetime import datetime
 from fastapi import Form, UploadFile, File
 from uuid import UUID
 
+
 class SignupRequest(BaseModel):
+    first_name: str
+    last_name: str
     email: EmailStr
-    first_name: str = Field(..., min_length=1)
-    last_name: str = Field(..., min_length=1)
+    password: str
+    company_name: Optional[str] = None
     address: Optional[str] = None
-    user_type: Optional[str] = None
     mobile: Optional[str] = None
     secondary_email: Optional[EmailStr] = None
     pin_code: Optional[str] = None
     gender: Optional[str] = None
-    password: str = Field(..., min_length=6, description="Password must be at least 6 characters long")
 
 
 class OTPVerifyRequest(BaseModel):
