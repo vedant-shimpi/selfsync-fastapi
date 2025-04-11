@@ -56,3 +56,9 @@ class ManagerCreate(BaseModel):
 
 class ManagerInfo(BaseModel):
     email: EmailStr
+
+class CreateAssessment(BaseModel):
+    id: UUID  
+    short_description: str
+    long_description: str
+    duration: int
