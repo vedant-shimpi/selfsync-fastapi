@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from assessment.login import router as login_router
 from assessment.email import router as email_router
 from assessment.user import router as user_router
+from assessment.manager import router as manager_router
 
 app = FastAPI()
 
@@ -30,3 +31,4 @@ app.add_middleware(
 app.include_router(login_router, tags=["Login"])
 app.include_router(email_router, tags=["Email"])
 app.include_router(user_router, tags=["User"])
+app.include_router(manager_router, tags=["Manager"])
