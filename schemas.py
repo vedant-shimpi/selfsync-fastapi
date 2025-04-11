@@ -4,13 +4,14 @@ from decimal import Decimal
 from datetime import datetime
 from fastapi import Form, UploadFile, File
 from uuid import UUID
-
+from typing import Literal
 
 class SignupRequest(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
     password: str
+    user_type: Literal["hr", "individual"]  # "Literal" force to enter either "hr" or "individual"
     company_name: Optional[str] = None
     address: Optional[str] = None
     mobile: Optional[str] = None

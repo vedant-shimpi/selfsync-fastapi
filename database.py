@@ -1,21 +1,27 @@
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 
 # Load environment variables
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")  
-client = MongoClient(DATABASE_URL)
+# Load MongoDB URL from env
+DATABASE_URL = os.getenv("DATABASE_URL", "mongodb://localhost:27017/self_sync_ai")
 
-db = client.get_default_database()  
+# Initialize async MongoDB client
+client = AsyncIOMotorClient(DATABASE_URL)
 
-# Dependency to get DB connection
-def get_db():
-    try:
-        yield db
-    finally:
-        client.close()
+# Extract the DB name from the URL (e.g., mongodb://localhost:27017/ai → "ai")
+db_name = DATABASE_URL.rsplit("/", 1)[-1]
+db = client[db_name]
+
+# Print DB names (async requires an event loop, so skip here or use in an async context)
+# Example usage: await client.list_database_names()
+
+# Dependency to get DB (no need to close client — Motor manages connections)
+async def get_db():
+    return db
+
+# Optional: expose individual collections directly if desired
+user_collection = db["users"]
+product_collection = db["products"]

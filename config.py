@@ -1,6 +1,4 @@
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import text
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 

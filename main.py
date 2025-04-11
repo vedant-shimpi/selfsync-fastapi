@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from assessment.login import router as login_router
-from assessment.email import router as email_router
-from assessment.user import router as user_router
-from assessment.manager import router as manager_router
+from business_logic.login import router as login_router
+from business_logic.email import router as email_router
+from business_logic.user import router as user_router
+from business_logic.manager import router as manager_router
 
 app = FastAPI()
 
