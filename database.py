@@ -9,13 +9,9 @@ from pymongo import MongoClient
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")  
-print(f"Loaded DB URL: {DATABASE_URL}")
 client = MongoClient(DATABASE_URL)
-print(client.list_database_names())
 
-
-# Access the specific database
-db = client.get_default_database()  # This picks the DB name from the URL
+db = client.get_default_database()  
 
 # Dependency to get DB connection
 def get_db():
