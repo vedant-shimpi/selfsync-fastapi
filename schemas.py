@@ -48,3 +48,6 @@ class UpdateUserProfileRequest(BaseModel):
             return validate_email(v).email  
         except Exception:
             raise ValueError("Invalid email format for secondary_email")
+        
+class ManagerCreate(BaseModel):
+    email: EmailStr

@@ -3,8 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from assessment.login import router as login_router
 from assessment.email import router as email_router
 from assessment.user import router as user_router
-from database import engine, Base
-
 
 app = FastAPI()
 
@@ -19,14 +17,14 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change this to restrict origins in production
+    allow_origins=["*"],  # Change this in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Initialize database
-Base.metadata.create_all(bind=engine)
+# No more SQLAlchemy setup
+# No Base.metadata.create_all(bind=engine)
 
 # Include routers
 app.include_router(login_router, tags=["Login"])
