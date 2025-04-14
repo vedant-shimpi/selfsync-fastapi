@@ -67,3 +67,12 @@ class AddPackage(BaseModel):
     per_assessment_price: str
     assessment_currency:str
     description: List[str]
+
+class CreateContact(BaseModel):
+    contact_id: UUID = Field(default_factory=uuid4)
+    first_name: str
+    last_name: str
+    email: EmailStr
+    mobile: str
+    message: str
+    contact_us_by:str
