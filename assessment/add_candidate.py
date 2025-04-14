@@ -21,7 +21,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
         if not assessments_document:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assessment not found.")
         
-        position_document = await assessments_collection.find_one({"position_title":request.position_title, "user_id":hr_users_document["_id"]})
+        position_document = await position_collection.find_one({"position_title":request.position_title, "user_id":hr_users_document["_id"]})
         now_time = datetime.now(timezone.utc)
         if not position_document:
             str_uuid_id = str(uuid.uuid4())
