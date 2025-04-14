@@ -58,7 +58,7 @@ async def signup(request: SignupRequest, db: AsyncIOMotorDatabase = Depends(get_
             "first_name": request.first_name,
             "last_name": request.last_name,
             "address": request.address,
-            "password": hash_password(request.password),  # Hash it in production
+            "password": hash_password(request.password),  # store Hashed password
             "user_type": request.user_type,
             "payment_status": "0",
             "mobile": request.mobile,

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
-from database import user_collection
+from database import users_collection, managers_collection
 from common.auth import get_current_user
 from schemas import UpdateUserProfile,ManagerStatusUpdate
 from bson import ObjectId
@@ -12,8 +12,6 @@ router = APIRouter()
 async def get_userprofile(current_user: dict = Depends(get_current_user), db=Depends(get_db)):
     try:
         user_id = current_user["_id"]
-        users_collection = db["users"]
-        managers_collection = db["manager"]
 
         user = await users_collection.find_one({"_id": user_id}, {"password": 0})
         if not user:
@@ -71,7 +69,6 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
 async def update_userprofile(payload: UpdateUserProfile, current_user: dict = Depends(get_current_user), db=Depends(get_db)):
     try:
         user_id = current_user["_id"]
-        users_collection = db["users"]
 
         update_data = {k: v for k, v in payload.dict().items() if v is not None}
 
@@ -109,9 +106,6 @@ async def deactivate_manager(
     try:
         if current_user.get("user_type") != "hr":
             return {"success": False, "message": "You are not authorized to perform this action."}
-
-        users_collection = db["users"]
-        managers_collection = db["manager"]
 
         manager_user_id = payload.id
         is_active_value = payload.is_active

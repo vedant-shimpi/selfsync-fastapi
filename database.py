@@ -23,5 +23,8 @@ async def get_db():
     return db
 
 # Optional: expose individual collections directly if desired
-user_collection = db["users"]
-product_collection = db["products"]
+users_collection = db["users"]
+assessments_collection = db["assessment"]
+position_collection = db["positions"]
+candidate_collection = db["candidate"]
+manager_collection = db["manager"]
