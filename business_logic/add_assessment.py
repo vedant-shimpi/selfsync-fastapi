@@ -40,16 +40,16 @@ async def get_all_assessments(current_user: dict = Depends(get_current_user),db=
 
     return {"assessments": data}
 
-@router.post("/add_package")
-async def add_package(assessment: AddPackage,current_user: dict = Depends(get_current_user), db=Depends(get_db)):
-    assessment_collection = db["packages"]
+# @router.post("/add_package")
+# async def add_package(assessment: AddPackage,current_user: dict = Depends(get_current_user), db=Depends(get_db)):
+#     assessment_collection = db["packages"]
 
-    await assessment_collection.create_index("id", unique=True)
+#     await assessment_collection.create_index("id", unique=True)
 
-    try:
-        assessment_data = assessment.dict()
-        assessment_data["id"] = str(assessment_data["id"])  # Convert UUID to string
-        await assessment_collection.insert_one(assessment_data)
-        return {"message": "Assessment package added successfully"}
-    except DuplicateKeyError:
-        raise HTTPException(status_code=400, detail="Assessment with this ID already exists")
+#     try:
+#         assessment_data = assessment.dict()
+#         assessment_data["id"] = str(assessment_data["id"])  # Convert UUID to string
+#         await assessment_collection.insert_one(assessment_data)
+#         return {"message": "Assessment package added successfully"}
+#     except DuplicateKeyError:
+#         raise HTTPException(status_code=400, detail="Assessment with this ID already exists")
