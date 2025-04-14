@@ -9,7 +9,7 @@ from database import assessments_collection,packages_collection,get_db
 router = APIRouter()
 
 @router.post("/add_assessment")
-def add_assessment(
+async def add_assessment(
     assessment: CreateAssessment,
     db=Depends(get_db)
 ):
