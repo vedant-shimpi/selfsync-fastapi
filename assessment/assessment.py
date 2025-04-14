@@ -1,10 +1,10 @@
 from fastapi import APIRouter
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import text
+# from sqlalchemy.orm import Session
+# from sqlalchemy.sql import text
 from config import oauth2_scheme, authenticate_user
 from database import get_db
 from fastapi import Depends, HTTPException
-from assessment.email import send_email
+# from assessment.email import send_email
 from passlib.context import CryptContext
 from config import oauth2_scheme, authenticate_user
 from schemas import UpdateUserProfileRequest
