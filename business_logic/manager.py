@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from database import get_db
 from fastapi import Depends, HTTPException
 from business_logic.email import send_email
 from pymongo.errors import DuplicateKeyError
-from schemas import ManagerCreate, ManagerInfo
+from schemas_validation.manager import ManagerCreate, ManagerInfo
 import random
 import string  
 from pymongo.collection import Collection
@@ -11,6 +10,8 @@ from datetime import datetime, timezone, timedelta
 import uuid
 from common.utils import hash_password
 from common.auth import get_current_user
+from database import managers_collection, users_collection, get_db
+
 
 router = APIRouter()
 
@@ -42,8 +43,8 @@ async def add_manager(
     if current_user.get("user_type") != "hr":
         return {"success": False, "message": "You are not authorized to add a manager."}
 
-    users_collection = db["users"]
-    managers_collection = db["manager"]
+    # users_collection = db["users"]
+    # managers_collection = db["manager"]
 
     users_collection.create_index("email", unique=True)
     users_collection.create_index("username", unique=True)
@@ -129,7 +130,6 @@ async def get_manager_info(
     db=Depends(get_db)
 ):
     try:
-        managers_collection = db["manager"]
         manager = await managers_collection.find_one(
             {"email": current_user["email"]},
             {"_id": 0, "password": 0}

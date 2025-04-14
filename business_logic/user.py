@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
-from database import users_collection, managers_collection
+from database import users_collection, managers_collection, get_db
 from common.auth import get_current_user
-from schemas import UpdateUserProfile,ManagerStatusUpdate
+from schemas_validation.user import UpdateUserProfile, ManagerStatusUpdate
 from bson import ObjectId
-from database import get_db
 
 router = APIRouter()
 
