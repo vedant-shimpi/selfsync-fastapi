@@ -3,7 +3,7 @@ from pydantic import UUID4, BaseModel, EmailStr, AnyUrl, HttpUrl, Field, field_v
 from decimal import Decimal
 from datetime import datetime
 from fastapi import Form, UploadFile, File
-from uuid import UUID
+from uuid import UUID , uuid4
 from typing import Literal
 
 class SignupRequest(BaseModel):
@@ -59,3 +59,11 @@ class CreateAssessment(BaseModel):
     short_description: str
     long_description: str
     duration: int
+
+class AddPackage(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    assessments: str
+    package_price: str
+    per_assessment_price: str
+    assessment_currency:str
+    description: List[str]

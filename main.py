@@ -4,7 +4,7 @@ from business_logic.login import router as login_router
 from business_logic.email import router as email_router
 from business_logic.user import router as user_router
 from business_logic.manager import router as manager_router
-from assessment.assessment import router as assessment_router
+from business_logic.add_assessment import router as add_assessment_router
 
 app = FastAPI()
 
@@ -33,5 +33,5 @@ app.include_router(login_router, tags=["Login"])
 app.include_router(email_router, tags=["Email"])
 app.include_router(user_router, tags=["User"])
 app.include_router(manager_router, tags=["Manager"])
-app.include_router(assessment_router, tags=["assessment"])
+app.include_router(add_assessment_router, tags=["add_assessment"])
 
