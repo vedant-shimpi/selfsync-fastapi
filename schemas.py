@@ -29,10 +29,12 @@ class UserLogin(BaseModel):
 
 
 class CreateAssessment(BaseModel):
-    id: UUID  
+    id: Optional[UUID] = Field(default_factory=uuid4) 
+    assessment_name: str
     short_description: str
     long_description: str
     duration: int
+    # hr_id:str
 
 class AddPackage(BaseModel):
     id: UUID = Field(default_factory=uuid4)

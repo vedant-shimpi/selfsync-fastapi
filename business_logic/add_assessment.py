@@ -9,19 +9,21 @@ from database import assessments_collection,packages_collection,get_db
 router = APIRouter()
 
 @router.post("/add_assessment")
-def add_assessment(assessment: CreateAssessment,current_user: dict = Depends(get_current_user), db=Depends(get_db)):
-
-    # Create a unique index on 'id' to prevent duplicate entries
-    assessments_collection.create_index("id", unique=True)
-
+def add_assessment(
+    assessment: CreateAssessment,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db)
+):
     try:
-        # assessment_collection.insert_one(assessment.dict())
         assessment_data = assessment.dict()
-        assessment_data["id"] = str(assessment_data["id"])  # convert UUID to string
+        
+        assessment_data["_id"] = str(assessment_data.pop("id"))
+
         assessments_collection.insert_one(assessment_data)
         return {"message": "Assessment added successfully"}
     except DuplicateKeyError:
         raise HTTPException(status_code=400, detail="Assessment with this ID already exists")
+    
     
 @router.get("/get_all_assessments")
 async def get_all_assessments(current_user: dict = Depends(get_current_user),db=Depends(get_db)):
