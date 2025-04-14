@@ -10,6 +10,7 @@ from pymongo.collection import Collection
 from datetime import datetime, timezone, timedelta
 import uuid
 from common.utils import hash_password
+from common.auth import get_current_user
 
 router = APIRouter()
 
@@ -109,13 +110,22 @@ async def add_manager(manager: ManagerCreate, db=Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/get_manager_info")
-def get_manager_info(query: ManagerInfo, db=Depends(get_db)):
-    managers_collection: Collection = db["manager"]
-    
-    manager = managers_collection.find_one({"email": query.email}, {"_id": 0, "password": 0})  
+@router.get("/get_manager_info", response_model=dict)
+async def get_manager_info(
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db)
+):
+    try:
+        managers_collection = db["manager"]
+        manager = await managers_collection.find_one(
+            {"email": current_user["email"]},
+            {"_id": 0, "password": 0}
+        )
 
-    if not manager:
-        raise HTTPException(status_code=404, detail="Manager not found")
+        if not manager:
+            raise HTTPException(status_code=404, detail="Manager not found")
 
-    return {"success": True, "data": manager}
+        return {"success": True, "data": manager}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
