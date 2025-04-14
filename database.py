@@ -30,4 +30,6 @@ candidate_collection = db["candidate"]
 managers_collection = db["manager"]
 contact_collection = db["contact"]
 packages_collection = db["packages"]
+question_banks_collection = db["question_banks"]
+questions_collection = db["questions"]
 
