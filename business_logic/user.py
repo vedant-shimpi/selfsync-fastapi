@@ -21,8 +21,29 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
 
         user["_id"] = str(user["_id"])
 
+        # If the user is of type 'manager', fetch the manager details
+        if user["user_type"] == "manager":
+            manager = await managers_collection.find_one({"_id": user["manager_id"]})
+            if manager:
+                manager["_id"] = str(manager["_id"])
+
+                return {
+                    "success": True,
+                    "data": {
+                        "user_info": user,
+                        "manager_info": manager
+                    }
+                }
+            else:
+                return {
+                    "success": True,
+                    "data": {
+                        "user_info": user,
+                        "manager_info": None
+                    }
+                }
+
         if user["user_type"] == "hr":
-            # Fetch all managers added by HR
             manager_list_cursor = managers_collection.find({"hr_id": user_id}, {"password": 0})
             manager_list = []
             async for manager in manager_list_cursor:
@@ -79,3 +100,5 @@ async def update_userprofile(payload: UpdateUserProfile, current_user: dict = De
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+

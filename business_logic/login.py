@@ -146,6 +146,9 @@ async def login(user: UserLogin, db: AsyncIOMotorDatabase = Depends(get_db)):
 
     if not db_user:
         return {"success": False, "message": "Invalid email or password"}
+    
+    if not db_user.get("is_active", False):
+        return {"success": False, "message": "User is not active"}
 
     # Verify password
     if not verify_password(user.password, db_user["password"]):
