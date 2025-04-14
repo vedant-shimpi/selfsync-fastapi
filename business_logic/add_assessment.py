@@ -42,10 +42,10 @@ async def get_all_assessments(current_user: dict = Depends(get_current_user),db=
 
 @router.get("/get_all_packages")
 async def get_all_packages(current_user: dict = Depends(get_current_user),db=Depends(get_db)):
-    assessment_collection = db["packages"]
+    packages_collection = db["packages"]
     data = []
 
-    assessments = await assessment_collection.find().to_list(length=None)
+    assessments = await packages_collection.find().to_list(length=None)
 
     for item in assessments:
         data.append({
