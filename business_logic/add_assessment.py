@@ -11,6 +11,7 @@ router = APIRouter()
 @router.post("/add_assessment")
 async def add_assessment(
     assessment: CreateAssessment,
+    current_user: dict = Depends(get_current_user),
     db=Depends(get_db)
 ):
     try:
