@@ -53,6 +53,7 @@ class UpdateUserProfileRequest(BaseModel):
 class ManagerCreate(BaseModel):
     email: EmailStr
     full_name: str
+    hr_id: str
 
 class ManagerInfo(BaseModel):
     email: EmailStr

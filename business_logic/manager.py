@@ -47,6 +47,10 @@ async def add_manager(manager: ManagerCreate, db=Depends(get_db)):
     first_name = name_parts[0]
     last_name = name_parts[-1] if len(name_parts) > 1 else ""
 
+    hr_exists = await users_collection.find_one({"_id": manager.hr_id})
+    if not hr_exists:
+        return {"success": False, "message": "Provided hr_id does not exist in users table."}
+
     # Generate password and username
     password = generate_unique_password(first_name)
     while True:
@@ -90,11 +94,11 @@ async def add_manager(manager: ManagerCreate, db=Depends(get_db)):
         }
         await users_collection.insert_one(user_data)
 
-        managers_collection.insert_one({
+        await managers_collection.insert_one({
             "email": manager.email,
             "full_name": manager.full_name,
-            "password": password,
-            "hr_id": user_id,
+            "password": hash_password(password),
+            "hr_id": manager.hr_id,
             "created_at": now,
             "updated_at": now
         })

@@ -4,55 +4,24 @@ from database import user_collection
 from common.auth import get_current_user
 from schemas import UpdateUserProfileRequest
 from bson import ObjectId
-
+from database import get_db
 
 router = APIRouter()
 
-@router.get("/get_userprofile", response_model=dict)
-async def get_userprofile(current_user: dict = Depends(get_current_user)):
-
+@router.get("/get_user_details", response_model=dict)
+async def get_userprofile(current_user: dict = Depends(get_current_user), db=Depends(get_db)):
     try:
-        user = current_user  # This is already the MongoDB user document
+        user_id = current_user["_id"]
+        users_collection = db["users"]
 
+        user = await users_collection.find_one({"_id": user_id}, {"password": 0})
         if not user:
-            return {"success": False, "message": "User not found."}
+            raise HTTPException(status_code=404, detail="User not found")
 
-        gender_mapping = {0: "female", 1: "male", 2: "other", None: "null"}
-        gender_value = gender_mapping.get(user.get("gender"), "other")
-
-        payment_mapping = {0: "Not Paid", 1: "Paid", 2: "Exhausted"}
-        payments = payment_mapping.get(user.get("payment_status"), "Not Paid")
-
-        registered_by_mapping = {0: "user", 1: "admin"}
-        registered_by_value = registered_by_mapping.get(int(user.get("registered_by", 0)), "")
-
-        user_data = {
-            "id": str(user["_id"]),
-            "first_name": user.get("first_name", ""),
-            "last_name": user.get("last_name", ""),
-            "email": user.get("email", ""),
-            "mobile": user.get("mobile", ""),
-            "username": user.get("username", ""),
-            "address": user.get("address", ""),
-            "user_type": user.get("user_type", ""),
-            "secondary_email": user.get("secondary_email", ""),
-            "registered_by": registered_by_value,
-            "pin_code": user.get("pin_code", ""),
-            "is_staff": user.get("is_staff", False),
-            "payment_status": payments,
-            "company_name": user.get("orgnization", ""),
-            "is_active": user.get("is_active", True),
-            "date_joined": user.get("date_joined").strftime('%Y-%m-%d %H:%M:%S') if user.get("date_joined") else None,
-            "is_superuser": user.get("is_superuser", False),
-            "otp_verify_status": user.get("otp_verify_status", False),
-            "gender": gender_value,
-            "last_login": user.get("last_login").strftime('%Y-%m-%d %H:%M:%S') if user.get("last_login") else None,
-        }
-
-        return {"success": True, "data": user_data}
-
+        user["_id"] = str(user["_id"])  
+        return {"success": True, "data": user}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/update_userprofile", response_model=dict)
