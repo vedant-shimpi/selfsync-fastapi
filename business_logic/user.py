@@ -66,9 +66,14 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
 
 
 @router.post("/update_user_details", response_model=dict)
-async def update_userprofile(payload: UpdateUserProfile, current_user: dict = Depends(get_current_user), db=Depends(get_db)):
+async def update_userprofile(
+    payload: UpdateUserProfile,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db)
+):
     try:
         user_id = current_user["_id"]
+        users_collection = db["users"]
 
         update_data = {k: v for k, v in payload.dict().items() if v is not None}
 
@@ -76,9 +81,12 @@ async def update_userprofile(payload: UpdateUserProfile, current_user: dict = De
             update_data["orgnization"] = update_data.pop("company_name")
 
         if not update_data:
-            raise HTTPException(status_code=400, detail="No fields provided to update")
+            return {"success": False, "message": "No fields provided to update"}
 
-        result = await users_collection.update_one({"_id": user_id}, {"$set": update_data})
+        result = await users_collection.update_one(
+            {"_id": user_id},
+            {"$set": update_data}
+        )
 
         if result.modified_count == 0:
             return {"success": False, "message": "User not found or no changes made"}
@@ -97,6 +105,7 @@ async def update_userprofile(payload: UpdateUserProfile, current_user: dict = De
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.post("/deactivate_manager", response_model=dict)

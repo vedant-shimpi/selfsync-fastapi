@@ -44,8 +44,10 @@ class UpdateUserProfile(BaseModel):
     is_staff: Optional[bool] = None
     is_active: Optional[bool] = None
     company_name: Optional[str] = None
-
-        
+    company_email: Optional[EmailStr] = None
+    company_size: Optional[str] = None
+    
+    
 class ManagerCreate(BaseModel):
     email: EmailStr
     full_name: str
