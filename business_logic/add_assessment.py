@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import Depends, HTTPException
 from pymongo.errors import DuplicateKeyError
 from database import get_db
-from schemas import CreateAssessment, AddPackage
+from schemas import CreateAssessment
 from common.auth import get_current_user
 
 router = APIRouter()
@@ -36,6 +36,25 @@ async def get_all_assessments(current_user: dict = Depends(get_current_user),db=
             "short_description": item.get("short_description", ""),
             "long_description": item.get("long_description", ""),
             "duration": item.get("duration", "")
+        })
+
+    return {"assessments": data}
+
+@router.get("/get_all_packages")
+async def get_all_packages(current_user: dict = Depends(get_current_user),db=Depends(get_db)):
+    assessment_collection = db["packages"]
+    data = []
+
+    assessments = await assessment_collection.find().to_list(length=None)
+
+    for item in assessments:
+        data.append({
+            "id": str(item.get("_id", "")),  # Ensures ObjectId is converted to string
+            "assessments": item.get("assessments", ""),
+            "package_price": item.get("package_price", ""),
+            "per_assessment_price": item.get("per_assessment_price", ""),
+            "assessment_currency": item.get("assessment_currency", ""),
+            "description": item.get("description", "")
         })
 
     return {"assessments": data}
