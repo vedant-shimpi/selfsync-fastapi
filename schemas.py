@@ -76,3 +76,7 @@ class CreateContact(BaseModel):
     mobile: str
     message: str
     contact_us_by:str
+
+class ManagerStatusUpdate(BaseModel):
+    id: str
+    is_active: bool

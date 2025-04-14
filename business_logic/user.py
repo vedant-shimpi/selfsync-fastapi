@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
 from database import user_collection
 from common.auth import get_current_user
-from schemas import UpdateUserProfile
+from schemas import UpdateUserProfile,ManagerStatusUpdate
 from bson import ObjectId
 from database import get_db
 
@@ -102,3 +102,47 @@ async def update_userprofile(payload: UpdateUserProfile, current_user: dict = De
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/deactivate_manager", response_model=dict)
+async def deactivate_manager(
+    payload: ManagerStatusUpdate,current_user: dict = Depends(get_current_user),
+    db=Depends(get_db)):
+    try:
+        if current_user.get("user_type") != "hr":
+            return {"success": False, "message": "You are not authorized to perform this action."}
+
+        users_collection = db["users"]
+        managers_collection = db["manager"]
+
+        manager_user_id = payload.id
+        is_active_value = payload.is_active
+
+        manager_user = await users_collection.find_one({
+            "_id": manager_user_id,
+            "user_type": "manager"
+        })
+        if not manager_user:
+            return {"success": False, "message": "Manager not found or invalid user type."}
+
+        #  Check that this manager was added by current HR
+        manager_doc = await managers_collection.find_one({"_id": manager_user_id})
+        if not manager_doc or manager_doc.get("hr_id") != current_user["_id"]:
+            return {"success": False, "message": "You are not authorized to modify this manager."}
+
+        #  Update is_active
+        result = await users_collection.update_one(
+            {"_id": manager_user_id},
+            {"$set": {"is_active": is_active_value}}
+        )
+
+        if result.modified_count == 0:
+            return {"success": False, "message": "No change made. Manager is already in that status."}
+
+        return {
+            "success": True,
+            "message": f"Manager {'activated' if is_active_value else 'deactivated'} successfully."
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

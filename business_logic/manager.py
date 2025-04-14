@@ -35,7 +35,13 @@ def send_email_with_password(email: str, password: str, first_name: str):
 
 
 @router.post("/add_manager")
-async def add_manager(manager: ManagerCreate, db=Depends(get_db)):
+async def add_manager(
+    manager: ManagerCreate, current_user: dict = Depends(get_current_user), db=Depends(get_db) 
+):
+    # Check if the current user is HR
+    if current_user.get("user_type") != "hr":
+        return {"success": False, "message": "You are not authorized to add a manager."}
+
     users_collection = db["users"]
     managers_collection = db["manager"]
 
@@ -48,8 +54,8 @@ async def add_manager(manager: ManagerCreate, db=Depends(get_db)):
     last_name = name_parts[-1] if len(name_parts) > 1 else ""
 
     hr_exists = await users_collection.find_one({"_id": manager.hr_id})
-    if not hr_exists:
-        return {"success": False, "message": "Provided hr_id does not exist in users table."}
+    if not hr_exists or hr_exists.get("user_type") != "hr":
+        return {"success": False, "message": "Provided hr_id does not exist in users table or is not an HR."}
 
     # Generate password and username
     password = generate_unique_password(first_name)
@@ -60,7 +66,7 @@ async def add_manager(manager: ManagerCreate, db=Depends(get_db)):
             break
 
     now = datetime.now(timezone.utc)
-    user_id = str(uuid.uuid4())
+    user_id = str(uuid.uuid4()) 
 
     try:
         user_data = {
@@ -71,7 +77,7 @@ async def add_manager(manager: ManagerCreate, db=Depends(get_db)):
             "last_name": last_name,
             "address": "",
             "password": hash_password(password),
-            "user_type": "manager",
+            "user_type": "manager",  
             "payment_status": "0",
             "mobile": "",
             "secondary_email": "",
@@ -87,7 +93,7 @@ async def add_manager(manager: ManagerCreate, db=Depends(get_db)):
             "otp_verify_status": True,
             "is_superuser": False,
             "is_staff": False,
-            "is_active": True,
+            "is_active": True,  
             "date_joined": now,
             "updated_at": now,
             "created_at": now,
@@ -100,13 +106,13 @@ async def add_manager(manager: ManagerCreate, db=Depends(get_db)):
             "email": manager.email,
             "full_name": manager.full_name,
             "password": hash_password(password),
-            "hr_id": manager.hr_id,
+            "hr_id": manager.hr_id,  
             "created_at": now,
             "updated_at": now
         }
         await managers_collection.insert_one(manager_data)
 
-        # Send credentials to manager
+        # Send credentials to the manager 
         send_email_with_password(manager.email, password, first_name)
 
         return {"success": True, "message": "Manager created, login enabled, and email sent."}
@@ -115,7 +121,6 @@ async def add_manager(manager: ManagerCreate, db=Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already exists in users or manager.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 @router.get("/get_manager_info", response_model=dict)
