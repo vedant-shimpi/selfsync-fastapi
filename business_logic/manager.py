@@ -67,7 +67,7 @@ async def add_manager(manager: ManagerCreate, db=Depends(get_db)):
             "last_name": last_name,
             "address": "",
             "password": hash_password(password),
-            "user_type": "hr",
+            "user_type": "manager",
             "payment_status": "0",
             "mobile": "",
             "secondary_email": "",
