@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
 from database import user_collection
 from common.auth import get_current_user
-from schemas import UpdateUserProfileRequest
+from schemas import UpdateUserProfile
 from bson import ObjectId
 from database import get_db
 
@@ -46,42 +46,36 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/update_userprofile", response_model=dict)
-async def update_userprofile(
-    request: UpdateUserProfileRequest,
-    current_user: dict = Depends(get_current_user)
-):
+@router.post("/update_user_details", response_model=dict)
+async def update_userprofile(payload: UpdateUserProfile, current_user: dict = Depends(get_current_user), db=Depends(get_db)):
     try:
         user_id = current_user["_id"]
+        users_collection = db["users"]
 
-        update_data = request.model_dump(exclude_unset=True)
-
-        if "gender" in update_data:
-            gender_mapping = {"female": 0, "male": 1}
-            update_data["gender"] = gender_mapping.get(update_data["gender"].lower(), 2)
-
-        if "registered_by" in update_data:
-            registered_by_mapping = {"user": 0, "admin": 1}
-            update_data["registered_by"] = registered_by_mapping.get(update_data["registered_by"].lower(), 2)
+        update_data = {k: v for k, v in payload.dict().items() if v is not None}
 
         if "company_name" in update_data:
             update_data["orgnization"] = update_data.pop("company_name")
 
         if not update_data:
-            raise HTTPException(status_code=400, detail="No valid fields provided for update.")
+            raise HTTPException(status_code=400, detail="No fields provided to update")
 
-        result = await user_collection.update_one(
-            {"_id": ObjectId(user_id)},  # ObjectId(user_id) ensures MongoDB _id is correctly cast from string.
-            {"$set": update_data}
-        )
+        result = await users_collection.update_one({"_id": user_id}, {"$set": update_data})
 
         if result.modified_count == 0:
-            return {"success": False, "message": "No changes were made."}
+            return {"success": False, "message": "User not found or no changes made"}
 
-        return {"success": True, "message": "User profile updated successfully."}
+        updated_user = await users_collection.find_one({"_id": user_id}, {"password": 0})
+        if not updated_user:
+            return {"success": False, "message": "User not found"}
 
-    except HTTPException as http_exc:
-        raise http_exc
+        updated_user["_id"] = str(updated_user["_id"])
+
+        return {
+            "success": True,
+            "message": "User details updated successfully",
+            "data": updated_user
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
