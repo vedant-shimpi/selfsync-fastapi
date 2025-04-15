@@ -70,7 +70,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
             send_html_email(
                 subject="Assessment Invitation | SelfsyncAi",
                 recipient=candidate_email,
-                template_name="assessment_invite.html",
+                template_name="assessment-invite.html",
                 context={
                     "assessment_name": assessments_document["assessment_name"],
                     "duration": assessments_document["duration"],
