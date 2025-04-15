@@ -22,4 +22,4 @@ class UpdateUserProfile(BaseModel):
 
 class ManagerStatusUpdate(BaseModel):
     id: str
-    is_active: bool
+    is_deleted: bool

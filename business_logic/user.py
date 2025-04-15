@@ -14,7 +14,7 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
 
         user = await users_collection.find_one({"_id": user_id}, {"password": 0})
         if not user:
-            raise HTTPException(status_code=404, detail="User not found")
+            return {"success": False, "message": "User not found"}
 
         user["_id"] = str(user["_id"])
 
@@ -116,7 +116,7 @@ async def deactivate_manager(
             return {"success": False, "message": "You are not authorized to perform this action."}
 
         manager_user_id = payload.id
-        is_active_value = payload.is_active
+        is_deleted_value = payload.is_deleted
 
         manager_user = await users_collection.find_one({
             "_id": manager_user_id,
@@ -130,10 +130,10 @@ async def deactivate_manager(
         if not manager_doc or manager_doc.get("hr_id") != current_user["_id"]:
             return {"success": False, "message": "You are not authorized to modify this manager."}
 
-        #  Update is_active
+        #  Update is_deleted
         result = await users_collection.update_one(
             {"_id": manager_user_id},
-            {"$set": {"is_active": is_active_value}}
+            {"$set": {"is_deleted": is_deleted_value}}
         )
 
         if result.modified_count == 0:
@@ -141,7 +141,7 @@ async def deactivate_manager(
 
         return {
             "success": True,
-            "message": f"Manager {'activated' if is_active_value else 'deactivated'} successfully."
+            "message": f"Manager {'deactivated' if is_deleted_value else 'activated'} successfully."
         }
 
     except HTTPException:
