@@ -121,16 +121,6 @@ async def verify_otp(request: OTPVerifyRequest, db: AsyncIOMotorDatabase = Depen
             }
         )
 
-        # Send final welcome email
-        with open("templates/signup.html", "r", encoding="utf-8") as file:
-            email_template = file.read()
-
-        email_message = email_template \
-            .replace("{first_name}", user["first_name"].capitalize()) \
-            .replace("{username}", user["username"])
-
-        send_email(user["email"], "Thank You for Joining Us", email_message)
-
         return {"success": True, "message": "OTP verified and user registered successfully."}
 
     except Exception as e:
@@ -149,6 +139,9 @@ async def login(user: UserLogin, db: AsyncIOMotorDatabase = Depends(get_db)):
     
     if not db_user.get("is_active", False):
         return {"success": False, "message": "User is not active"}
+    
+    if db_user.get("is_deleted", False):
+        return {"success": False, "message": "User is deactivated"}
 
     # Verify password
     if not verify_password(user.password, db_user["password"]):
