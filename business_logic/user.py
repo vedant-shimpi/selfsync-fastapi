@@ -13,39 +13,40 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
         user_id = current_user["_id"]
 
         user = await users_collection.find_one({"_id": user_id}, {"password": 0})
-        if not user:
-            return {"success": False, "message": "User not found"}
+        if not user or (user["user_type"] == "manager" and user.get("is_deleted") == True):
+            return {"success": False, "message": "User not found or deleted"}
+
 
         user["_id"] = str(user["_id"])
 
-        # If the user is of type 'manager', fetch the manager details
+        # If user is a manager, fetch linked manager details
         if user["user_type"] == "manager":
-            manager = await managers_collection.find_one({"_id": user["manager_id"]})
+            manager = await managers_collection.find_one({"_id": user.get("manager_id")})
             if manager:
                 manager["_id"] = str(manager["_id"])
-
-                return {
-                    "success": True,
-                    "data": {
-                        "user_info": user,
-                        "manager_info": manager
-                    }
+            return {
+                "success": True,
+                "data": {
+                    "user_info": user,
+                    "manager_info": manager or None
                 }
-            else:
-                return {
-                    "success": True,
-                    "data": {
-                        "user_info": user,
-                        "manager_info": None
-                    }
-                }
+            }
 
+        # If user is HR, fetch all managers
         if user["user_type"] == "hr":
-            manager_list_cursor = managers_collection.find({"hr_id": user_id}, {"password": 0})
+            manager_cursor = managers_collection.find({"hr_id": user_id})
             manager_list = []
-            async for manager in manager_list_cursor:
-                manager["_id"] = str(manager["_id"])
-                manager_list.append(manager)
+
+            async for manager in manager_cursor:
+                manager_user = await users_collection.find_one({
+                    "manager_id": manager["_id"],
+                    "user_type": "manager",
+                    "is_deleted": False
+                }, {"password": 0})
+
+                if manager_user:
+                    manager["_id"] = str(manager["_id"])
+                    manager_list.append(manager)
 
             return {
                 "success": True,
