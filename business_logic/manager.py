@@ -37,14 +37,13 @@ def send_email_with_password(email: str, password: str, first_name: str):
 
 @router.post("/add_manager")
 async def add_manager(
-    manager: ManagerCreate, current_user: dict = Depends(get_current_user), db=Depends(get_db) 
+    manager: ManagerCreate,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db)
 ):
     # Check if the current user is HR
     if current_user.get("user_type") != "hr":
         return {"success": False, "message": "You are not authorized to add a manager."}
-
-    # users_collection = db["users"]
-    # managers_collection = db["manager"]
 
     users_collection.create_index("email", unique=True)
     users_collection.create_index("username", unique=True)
@@ -53,6 +52,50 @@ async def add_manager(
     name_parts = manager.full_name.strip().split()
     first_name = name_parts[0]
     last_name = name_parts[-1] if len(name_parts) > 1 else ""
+
+    hr_id = current_user["_id"]
+
+    # Check if manager with same email exists
+    existing_manager = await managers_collection.find_one({"email": manager.email})
+    if existing_manager:
+        if existing_manager["hr_id"] != hr_id:
+            return {"success": False, "message": "This manager is already assigned to a different HR."}
+
+        existing_user = await users_collection.find_one({"_id": existing_manager["_id"], "user_type": "manager"})
+        if existing_user:
+            if existing_user.get("is_deleted") is True:
+                now = datetime.now(timezone.utc)
+
+                # Reactivate and update user info (excluding email & password)
+                await users_collection.update_one(
+                    {"_id": existing_user["_id"]},
+                    {
+                        "$set": {
+                            "first_name": first_name,
+                            "last_name": last_name,
+                            "is_deleted": False,
+                            "updated_at": now
+                        }
+                    }
+                )
+
+                await managers_collection.update_one(
+                    {"_id": existing_manager["_id"]},
+                    {
+                        "$set": {
+                            "full_name": manager.full_name,
+                            "updated_at": now
+                        }
+                    }
+                )
+
+                return {
+                    "success": True,
+                    "message": "Existing manager re-activated and updated successfully."
+                }
+
+            else:
+                return {"success": False, "message": "Manager already exists and is active."}
 
     hr_exists = await users_collection.find_one({"_id": manager.hr_id})
     if not hr_exists or hr_exists.get("user_type") != "hr":
@@ -67,7 +110,7 @@ async def add_manager(
             break
 
     now = datetime.now(timezone.utc)
-    user_id = str(uuid.uuid4()) 
+    user_id = str(uuid.uuid4())
 
     try:
         user_data = {
@@ -78,7 +121,7 @@ async def add_manager(
             "last_name": last_name,
             "address": "",
             "password": hash_password(password),
-            "user_type": "manager",  
+            "user_type": "manager",
             "payment_status": "0",
             "mobile": "",
             "secondary_email": "",
@@ -95,7 +138,7 @@ async def add_manager(
             "is_superuser": False,
             "is_staff": False,
             "is_active": True,
-            "is_deleted": False,  
+            "is_deleted": False,
             "date_joined": now,
             "updated_at": now,
             "created_at": now,
@@ -108,7 +151,7 @@ async def add_manager(
             "email": manager.email,
             "full_name": manager.full_name,
             "password": hash_password(password),
-            "hr_id": manager.hr_id,  
+            "hr_id": manager.hr_id,
             "created_at": now,
             "updated_at": now
         }
