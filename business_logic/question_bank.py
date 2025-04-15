@@ -31,9 +31,7 @@ def remove_question_data(questions):
 @router.post("/get_questions")
 async def get_questions_by_subject(
     request: SubjectRequest,
-    db=Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
+    db=Depends(get_db)):
     bank = await question_banks_collection.find_one({"name": request.subject_name})
     if not bank:
         return {"success": False, "message": "Question bank not found"}
