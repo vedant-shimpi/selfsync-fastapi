@@ -1,10 +1,11 @@
 from database import get_db
 from fastapi.responses import JSONResponse
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi import Depends
 from common.auth import get_current_user
 import os
 import httpx
+
 
 API_KEY= os.getenv("IP_ADDRESS_KEY_GET_GEODATA")
 router = APIRouter()
@@ -18,9 +19,21 @@ def send_email(to: str, subject: str, html: str):
 
 IP_REGEX = r"^\d{1,3}(\.\d{1,3}){3}$"
 
+# Function to get the real client IP address (handles Nginx and proxies)
+# Dont forgot add add config in NGINX
+def get_real_client_ip(request: Request):
+    x_forwarded_for = request.headers.get("x-forwarded-for")
+    if x_forwarded_for:
+        return x_forwarded_for.split(",")[0].strip()  # Get the real client IP from the X-Forwarded-For header
+    return request.client.host  
+
+
 @router.get("/fetch-ip-data")
-async def get_ip_info():
-    url = f"https://api.ipdata.co/?api-key={API_KEY}&fields={FIELDS}"
+async def get_ip_info(request: Request):
+
+    client_ip = get_real_client_ip(request)
+    
+    url = f"https://api.ipdata.co/{client_ip}?api-key={API_KEY}&fields={FIELDS}"
 
     try:
         async with httpx.AsyncClient() as client:
