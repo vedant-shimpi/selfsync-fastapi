@@ -5,166 +5,49 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Welcome to SelfsyncAi</title>
-    <style>
-      body {
-        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        background-color: #f8f9fa;
-        margin: 0;
-        padding: 20px;
-        color: #333;
-      }
-      .email-container {
-        max-width: 600px;
-        width: 100%;
-        background-color: #ffffff;
-        margin: auto;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-      }
-      .header {
-        background: linear-gradient(135deg, #b79bf8 0%, #8a5cf6 100%);
-        color: white;
-        text-align: center;
-        padding: 40px 30px;
-        font-size: 26px;
-        font-weight: 600;
-      }
-      .content {
-        padding: 30px;
-        text-align: left;
-        font-size: 16px;
-        line-height: 1.6;
-      }
-      .content p {
-        margin: 16px 0;
-      }
-      .welcome-text {
-        font-size: 18px;
-        color: #444;
-        margin-bottom: 24px;
-      }
-      .credentials-box {
-        background-color: #f9f5ff;
-        border-left: 4px solid #8a63ff;
-        padding: 16px 20px;
-        border-radius: 0 8px 8px 0;
-        margin: 24px 0;
-      }
-      .credentials-label {
-        font-weight: 600;
-        color: #6d28d9;
-        margin-bottom: 8px;
-        display: block;
-      }
-      .button-container {
-        text-align: center;
-        margin: 30px 0 20px;
-      }
-      .button {
-        display: inline-block;
-        background: linear-gradient(135deg, #8a63ff 0%, #6d28d9 100%);
-        color: white !important;
-        text-decoration: none;
-        padding: 14px 28px;
-        border-radius: 30px;
-        font-size: 16px;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2);
-        transition: all 0.3s ease;
-      }
-      .button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(109, 40, 217, 0.3);
-      }
-      .username {
-        font-size: 20px;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 20px;
-      }
-      .footer {
-        background-color: #f0e9ff;
-        text-align: center;
-        padding: 20px;
-        font-size: 14px;
-        color: #666;
-      }
-      .footer p {
-        margin: 8px 0;
-      }
-      .footer a {
-        color: #6d28d9;
-        text-decoration: none;
-        font-weight: 500;
-      }
-      .footer a:hover {
-        text-decoration: underline;
-      }
-      .logo {
-        font-size: 20px;
-        font-weight: 700;
-        color: #6d28d9;
-        margin-bottom: 10px;
-      }
-      .divider {
-        height: 1px;
-        background-color: #eee;
-        margin: 20px 0;
-      }
-    </style>
   </head>
-  <body>
-    <!-- Centered Email Container -->
-    <table class="email-container" cellpadding="0" cellspacing="0" border="0">
-      <!-- Header -->
+  <body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; color: #333;">
+    <table cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; margin: auto; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);">
       <tr>
-        <td class="header">Welcome to SelfsyncAi!</td>
+        <td style="background: linear-gradient(135deg, #b79bf8 0%, #8a5cf6 100%); color: white; text-align: center; padding: 40px 30px; font-size: 26px; font-weight: 600;">
+          Welcome to SelfsyncAi!
+        </td>
       </tr>
-
-      <!-- Content -->
       <tr>
-        <td class="content">
-          <p class="username">Hello {first_name},</p>
+        <td style="padding: 30px; text-align: left; font-size: 16px; line-height: 1.6;">
+          <p style="font-size: 20px; font-weight: 600; color: #333; margin-bottom: 20px;">Hello {{first_name}},</p>
 
-          <p class="welcome-text">
-            We're excited to have you on board! Below are your login credentials
-            to access your account:
+          <p style="font-size: 18px; color: #444; margin-bottom: 24px;">
+            We're excited to have you on board! Below are your login credentials to access your account:
           </p>
 
-          <div class="credentials-box">
-            <span class="credentials-label">Your login details:</span>
-            <p><strong>Email:</strong> {email}</p>
-            <p><strong>Password:</strong> {password}</p>
+          <div style="background-color: #f9f5ff; border-left: 4px solid #8a63ff; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 24px 0;">
+            <span style="font-weight: 600; color: #6d28d9; margin-bottom: 8px; display: block;">Your login details:</span>
+            <p><strong>Email:</strong> {{email}}</p>
+            <p><strong>Password:</strong> {{password}}</p>
           </div>
 
-          <div class="button-container">
-            <a href="https://portal.selfsync.ai/login" class="button"
-              >Get Started Now</a
-            >
+          <div style="text-align: center; margin: 30px 0 20px;">
+            <a href="https://portal.selfsync.ai/login" style="display: inline-block; background: linear-gradient(135deg, #8a63ff 0%, #6d28d9 100%); color: white !important; text-decoration: none; padding: 14px 28px; border-radius: 30px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2); transition: all 0.3s ease;">
+              Get Started Now
+            </a>
           </div>
 
-          <div class="divider"></div>
+          <div style="height: 1px; background-color: #eee; margin: 20px 0;"></div>
 
-          <p style="text-align: center; font-size: 15px; color: #777">
-            You're receiving this email because you were added as a manager to
-            SelfsyncAi.
+          <p style="text-align: center; font-size: 15px; color: #777;">
+            You're receiving this email because you were added as a manager to SelfsyncAi.
           </p>
         </td>
       </tr>
-
-      <!-- Footer -->
       <tr>
-        <td class="footer">
-          <div class="logo">SelfsyncAi</div>
-          <p>Empowering your digital experience</p>
-          <p>
-            Need help?
-            <a href="mailto:support@selfsync.ai"
-              >support@selfsync.ai</a
-            >
+        <td style="background-color: #f0e9ff; text-align: center; padding: 20px; font-size: 14px; color: #666;">
+          <div style="font-size: 20px; font-weight: 700; color: #6d28d9; margin-bottom: 10px;">SelfsyncAi</div>
+          <p style="margin: 8px 0;">Empowering your digital experience</p>
+          <p style="margin: 8px 0;">
+            Need help? <a href="mailto:support@selfsync.ai" style="color: #6d28d9; text-decoration: none; font-weight: 500;">support@selfsync.ai</a>
           </p>
-          <p>&copy; 2025 SelfsyncAi. All rights reserved.</p>
+          <p style="margin: 8px 0;">&copy; 2025 SelfsyncAi. All rights reserved.</p>
         </td>
       </tr>
     </table>

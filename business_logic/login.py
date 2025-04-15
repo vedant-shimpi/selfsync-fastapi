@@ -11,7 +11,7 @@ import string
 from common.utils import create_access_token, hash_password, verify_password
 from jose import JWTError, jwt
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from business_logic.email import send_email,templates_path
+from business_logic.email import send_html_email
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 
@@ -86,11 +86,7 @@ async def signup(request: SignupRequest, db: AsyncIOMotorDatabase = Depends(get_
         await db["users"].insert_one(user_data)
 
         # Read and send OTP email
-        with open("templates/signup_otp.html", "r", encoding="utf-8") as file:
-            email_template = file.read()
-
-        email_message = email_template.replace("{first_name}", request.first_name.capitalize()).replace("{otp}", otp)
-        send_email(request.email, "Your Signup OTP", email_message)
+        send_html_email(subject="Your Signup OTP", recipient= request.email, template_name= "signup_otp.html", context= {"first_name":request.first_name.capitalize(), "otp":otp})
 
         return {"success": True, "message": "OTP sent to email. Please verify within 3 minutes."}
 

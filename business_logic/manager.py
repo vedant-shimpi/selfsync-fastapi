@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi import Depends, HTTPException
-from business_logic.email import send_email
+from business_logic.email import send_html_email
 from pymongo.errors import DuplicateKeyError
 from schemas_validation.manager import ManagerCreate, ManagerInfo
 import random
@@ -19,20 +19,6 @@ router = APIRouter()
 def generate_unique_password(first_name: str):
     random_suffix = "".join(random.choices(string.digits, k=4))
     return f"{first_name.lower()}_{random_suffix}"
-
-
-# Send email using template
-def send_email_with_password(email: str, password: str, first_name: str):
-    with open("templates/login_info.html", "r", encoding="utf-8") as file:
-        email_template = file.read()
-
-    email_message = (
-        email_template
-        .replace("{first_name}", first_name.capitalize())
-        .replace("{email}", email)
-        .replace("{password}", password)
-    )
-    send_email(email, "login information", email_message)
 
 
 @router.post("/add_manager")
@@ -152,7 +138,7 @@ async def add_manager(
         await users_collection.insert_one(user_data)
         await managers_collection.insert_one(manager_data)
 
-        send_email_with_password(manager.email, password, first_name)
+        send_html_email(subject="login information", recipient= manager.email, template_name= "login_info.html", context= {"first_name":first_name.capitalize(), "email":manager.email, "password":password})
 
         return {"success": True, "message": "Manager created, login enabled, and email sent."}
     except Exception as e:
