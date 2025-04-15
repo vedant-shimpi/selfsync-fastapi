@@ -36,7 +36,7 @@ async def add_assessment(
         if existing_assessment:
             raise HTTPException(status_code=400, detail="Assessment with this name already exists")
 
-        assessment_data["id"] = str(assessment_data["id"])
+        assessment_data["_id"] = str(assessment_data["id"])
         print("Final assessment data to insert:", assessment_data)
         # Remove the 'id' field before inserting if it's present in the payload
         # MongoDB will auto-generate the _id for new documents
@@ -67,6 +67,7 @@ async def get_all_assessments(current_user: dict = Depends(get_current_user),db=
     for item in assessments:
         data.append({
             "id": str(item.get("_id", "")),  # Ensures ObjectId is converted to string
+            "assessment_name": item.get("assessment_name", ""),
             "short_description": item.get("short_description", ""),
             "long_description": item.get("long_description", ""),
             "duration": item.get("duration", "")
