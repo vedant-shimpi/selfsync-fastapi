@@ -9,7 +9,7 @@ import httpx
 API_KEY= os.getenv("IP_ADDRESS_KEY_GET_GEODATA")
 router = APIRouter()
 
-FIELDS = "ip,is_eu,city,region,region_code,country_name,currency,country_code,continent_name,continent_code,latitude,longitude,postal,calling_code,flag,emoji_flag,emoji_unicode"
+FIELDS = "ip,is_eu,city,country_name,country_code,currency,continent_name,continent_code,latitude,longitude,postal,calling_code,flag,emoji_flag,emoji_unicode"
 ADMIN_EMAIL = "vedant.shimpi@digikore.com"  
 
 
