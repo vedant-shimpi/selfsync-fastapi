@@ -42,9 +42,6 @@ async def add_manager(
     if current_user.get("user_type") != "hr":
         return {"success": False, "message": "You are not authorized to add a manager."}
 
-    users_collection = db["users"]
-    managers_collection = db["manager"]
-
     name_parts = manager.full_name.strip().split()
     first_name = name_parts[0]
     last_name = name_parts[-1] if len(name_parts) > 1 else ""
@@ -53,7 +50,6 @@ async def add_manager(
 
     # Validate HR
     hr_exists = await users_collection.find_one({"_id": str(manager.hr_id)})
-    print("Found HR record:", hr_exists)
     if not hr_exists:
         return {"success": False, "message": "Provided hr_id does not exist or is not an HR."}
 

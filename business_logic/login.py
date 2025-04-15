@@ -144,6 +144,9 @@ async def login(user: UserLogin, db: AsyncIOMotorDatabase = Depends(get_db)):
     
     if db_user.get("is_deleted", False):
         return {"success": False, "message": "User is deactivated"}
+    
+    if not db_user.get("otp_verify_status", False):
+        return {"success": False, "message": "User otp verification is pending"}
 
     # Verify password
     if not verify_password(user.password, db_user["password"]):
