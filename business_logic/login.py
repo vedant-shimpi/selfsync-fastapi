@@ -33,7 +33,43 @@ async def signup(request: SignupRequest, db: AsyncIOMotorDatabase = Depends(get_
     try:
         # Check if user with email already exists
         existing_user = await db["users"].find_one({"email": request.email})
+
         if existing_user:
+            if not existing_user.get("otp_verify_status", False):
+                # Resend OTP logic
+                otp = str(random.randint(100000, 999999))
+                otp_created_at = datetime.now(timezone.utc)
+                otp_expiry_time = otp_created_at + timedelta(minutes=3)
+
+                # Update user with new OTP and timestamps
+                await db["users"].update_one(
+                    {"_id": existing_user["_id"]},
+                    {
+                        "$set": {
+                            "otp": otp,
+                            "otp_created_at": otp_created_at,
+                            "login_otp_try_dt": otp_expiry_time,
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    }
+                )
+
+                # Resend OTP email
+                send_html_email(
+                    subject="Your Signup OTP",
+                    recipient=request.email,
+                    template_name="signup_otp.html",
+                    context={
+                        "first_name": existing_user["first_name"].capitalize(),
+                        "otp": otp
+                    }
+                )
+
+                return {
+                    "success": True,
+                    "message": "User already exists but not verified. OTP re-sent to email. Please verify within 3 minutes."
+                }
+
             return {"success": False, "message": "User with this email already exists."}
 
         # Gmail restriction for organization users
