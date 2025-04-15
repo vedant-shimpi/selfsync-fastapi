@@ -26,7 +26,7 @@ class AddCandidateSchemaRequest(BaseModel):
 
 
 class CandidateInfoPydanticSchema(BaseModel):
-    _id: str  # assuming str_uuid_id is a string UUID
+    id: str = Field(..., alias="_id")  # assuming str_uuid_id is a string UUID.  alias `_id` accepted as input. Use `id` internally, `_id` as external (Mongo)
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: EmailStr
@@ -54,3 +54,4 @@ class CandidateInfoPydanticSchema(BaseModel):
 
     class Config:
         extra = "forbid"  # No extra fields allowed in input data
+        populate_by_name = True  # Allows _id input even though field is `id`
