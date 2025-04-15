@@ -16,13 +16,9 @@ async def add_assessment(
 ):
     try:
         assessment_data = assessment.dict()
-
-        # Extract and strip the assessment name
         assessment_name = assessment.assessment_name.strip()
 
         print(f"Checking for name: '{assessment_name}'")
-
-        # Check if the assessment name already exists in the database (case insensitive)
         existing_assessment = await assessments_collection.find_one({
             "assessment_name": {
                 "$regex": f"^{assessment_name}$",
@@ -30,20 +26,13 @@ async def add_assessment(
             }
         })
 
-        print("Existing assessment:", existing_assessment)
-
-        # If assessment exists, raise an error
         if existing_assessment:
             raise HTTPException(status_code=400, detail="Assessment with this name already exists")
 
-        assessment_data["_id"] = str(assessment_data["id"])
-        print("Final assessment data to insert:", assessment_data)
-        # Remove the 'id' field before inserting if it's present in the payload
-        # MongoDB will auto-generate the _id for new documents
-        if "_id" in assessment_data:
-            del assessment_data["_id"]
+        string_id = str(assessment_data["id"])
+        assessment_data["id"] = string_id
+        assessment_data["_id"] = string_id
 
-        print("Final assessment data to insertttt:", assessment_data)
         result = await assessments_collection.insert_one(assessment_data)
 
         print(f"Insert result: {result.inserted_id}")
@@ -53,11 +42,7 @@ async def add_assessment(
     except Exception as e:
         print("Unhandled error:", str(e))
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
-
-
-
-    
-    
+          
 @router.get("/get_all_assessments")
 async def get_all_assessments(current_user: dict = Depends(get_current_user),db=Depends(get_db)):
     data = []
