@@ -3,31 +3,40 @@ from datetime import datetime
 from database import question_banks_collection, questions_collection, get_db
 from common.auth import get_current_user
 from schemas_validation.question_bank import SubjectRequest
-from bson import ObjectId
+from common.auth import get_current_user
 
 router = APIRouter()
 
-def convert_objectid(doc):
-    """Recursively converts ObjectId fields to string in a dict or list"""
-    if isinstance(doc, list):
-        return [convert_objectid(item) for item in doc]
-    elif isinstance(doc, dict):
-        return {
-            key: convert_objectid(value)
-            for key, value in doc.items()
+def remove_question_data(questions):
+    clean_list = []
+    for question in questions:
+        cleaned = {
+            "_id": str(question["_id"]),
+            "question_text": question["question_text"],
+            "category": question.get("category"),
+            "type": question.get("type"),
+            "difficulty": question.get("difficulty"),
+            "skill_id": str(question["skill_id"]) if "skill_id" in question else None,
+            "options": [
+                {
+                    "id": option["id"],
+                    "text": option["text"]
+                } for option in question.get("options", [])
+            ]
         }
-    elif isinstance(doc, ObjectId):
-        return str(doc)
-    else:
-        return doc
+        clean_list.append(cleaned)
+    return clean_list
+
 
 @router.post("/get_questions")
-async def get_questions_by_subject(request: SubjectRequest, db=Depends(get_db)):
-
-
+async def get_questions_by_subject(
+    request: SubjectRequest,
+    db=Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
     bank = await question_banks_collection.find_one({"name": request.subject_name})
     if not bank:
-        raise HTTPException(status_code=404, detail="Question bank not found")
+        return {"success": False, "message": "Question bank not found"}
 
     question_ids = bank.get("question_ids", [])
     questions_cursor = questions_collection.find({
@@ -35,8 +44,7 @@ async def get_questions_by_subject(request: SubjectRequest, db=Depends(get_db)):
     })
     questions = await questions_cursor.to_list(length=None)
 
-    # Convert ObjectId strings
-    clean_questions = [convert_objectid(q) for q in questions]
+    clean_questions = remove_question_data(questions)
 
     return {
         "success": True,
@@ -44,3 +52,4 @@ async def get_questions_by_subject(request: SubjectRequest, db=Depends(get_db)):
         "total_questions": len(clean_questions),
         "questions": clean_questions
     }
+
