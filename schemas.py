@@ -29,7 +29,7 @@ class UserLogin(BaseModel):
 
 
 class CreateAssessment(BaseModel):
-    id: Optional[UUID] = Field(default_factory=uuid4) 
+    id: Optional[UUID] = Field(default_factory=uuid4)
     assessment_name: str
     short_description: str
     long_description: str
