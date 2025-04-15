@@ -18,6 +18,8 @@ class SignupRequest(BaseModel):
     secondary_email: Optional[EmailStr] = None
     pin_code: Optional[str] = None
     gender: Optional[str] = None
+    company_email: Optional[EmailStr] = None
+    company_size: Optional[str] = None
 
 
 class OTPVerifyRequest(BaseModel):

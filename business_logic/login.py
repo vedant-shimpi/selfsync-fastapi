@@ -76,6 +76,8 @@ async def signup(request: SignupRequest, db: AsyncIOMotorDatabase = Depends(get_
             "is_superuser": False,
             "is_staff": False,
             "is_active": True,
+            "company_email": request.company_email or "",
+            "company_size": request.company_size or "",
             "date_joined": now_time,
             "updated_at": now_time,
             "created_at": now_time
