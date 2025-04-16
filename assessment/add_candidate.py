@@ -76,10 +76,11 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
                 context={
                     "assessment_name": assessments_document["assessment_name"],
                     "duration": assessments_document["duration"],
-                    "question_count": 60,
-                    "due_date": now_time + timedelta(days=1),
+                    "question_count": assessments_document.get("question_count", 60),
+                    "due_date": (now_time + timedelta(days=1)).strftime("%d/%m/%Y %H:%M"),
                     "custom_instructions": "Read questions carefully and answer properly.",
-                    "assessment_url": "https://assessment.selfsync.ai/test/?assessment={}&hr={}&candidate={}&is_new_joiner={}".format(assessments_document["_id"], hr_users_document["_id"], str_uuid_id, request.is_new_joiner)
+                    "assessment_url": "https://assessment.selfsync.ai/test/?assessment={}&hr={}&candidate={}&is_new_joiner={}".format(assessments_document["_id"], hr_users_document["_id"], str_uuid_id, request.is_new_joiner),
+                    "otp":otp
                 }
             )
 

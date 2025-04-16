@@ -46,6 +46,7 @@ class CandidateInfoPydanticSchema(BaseModel):
     black_listed: bool = False  # if candidate did somethin malicious activity 
     is_assessment_started: bool
     is_assessment_completed: bool
+    answer_paper_id: str = None 
     exam_completed_at: Optional[datetime] = None  # update exam submission time
     candidate_score: float = 0.00
     candidate_remark: Optional[str] = None
