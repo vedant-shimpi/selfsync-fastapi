@@ -1,6 +1,7 @@
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
+import os
 
 # OAuth2 scheme for token extraction
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -24,3 +25,8 @@ def authenticate_user(token: str = Depends(oauth2_scheme)):
         return email
     except JWTError:
         raise credentials_exception
+    
+RAZORPAY_API_KEY = os.getenv('RAZORPAY_API_KEY_LIVE')
+RAZORPAY_SECRET_KEY = os.getenv('RAZORPAY_SECRET_KEY_LIVE')
+
+RAZORPAY_URL = "https://api.razorpay.com/v1/"
