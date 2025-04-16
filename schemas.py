@@ -36,6 +36,7 @@ class CreateAssessment(BaseModel):
     short_description: str
     long_description: str
     duration: int
+    question_count: int
     # hr_id:str
 
 class AddPackage(BaseModel):
