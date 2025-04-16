@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import List
+from typing import List 
 
 
 class ManagerCreate(BaseModel):
@@ -9,4 +9,7 @@ class ManagerCreate(BaseModel):
 
 class ManagerInfo(BaseModel):
     email: EmailStr
+
+class ManagerListRequest(BaseModel):
+    hr_id: str
 

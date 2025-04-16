@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi import Depends, HTTPException
 from business_logic.email import send_html_email
 from pymongo.errors import DuplicateKeyError
-from schemas_validation.manager import ManagerCreate, ManagerInfo
+from schemas_validation.manager import ManagerCreate, ManagerInfo, ManagerListRequest
 import random
 import string  
 from pymongo.collection import Collection
@@ -11,6 +11,8 @@ import uuid
 from common.utils import hash_password
 from common.auth import get_current_user
 from database import managers_collection, users_collection, get_db
+from fastapi import APIRouter, Depends, HTTPException
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 
 router = APIRouter()
@@ -163,3 +165,27 @@ async def get_manager_info(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.post("/manager_list", response_model=dict)
+async def manager_list(request: ManagerListRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    try:
+        cursor = db["manager"].find({"hr_id": request.hr_id})
+        managers = await cursor.to_list(length=None)
+
+        if not managers:
+            return {"success": True, "managers": []}
+
+        result = []
+        for manager in managers:
+            full_name = f"{manager.get('first_name', '')} {manager.get('last_name', '')}".strip()
+            result.append({
+                "full_name": full_name,
+                "email": manager.get("email", "")
+            })
+
+        return {"success": True, "managers": result}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
