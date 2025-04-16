@@ -18,7 +18,7 @@ async def add_assessment(
         assessment_data = assessment.dict()
         assessment_name = assessment.assessment_name.strip()
 
-        print(f"Checking for name: '{assessment_name}'")
+        # print(f"Checking for name: '{assessment_name}'")
         existing_assessment = await assessments_collection.find_one({
             "assessment_name": {
                 "$regex": f"^{assessment_name}$",
@@ -35,7 +35,7 @@ async def add_assessment(
 
         result = await assessments_collection.insert_one(assessment_data)
 
-        print(f"Insert result: {result.inserted_id}")
+        # print(f"Insert result: {result.inserted_id}")
 
         return {"message": "Assessment added successfully"}
 
