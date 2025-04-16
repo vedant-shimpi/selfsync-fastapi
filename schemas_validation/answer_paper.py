@@ -9,4 +9,6 @@ class SaveAnswerPaperRequest(BaseModel):
     manager_id: Union[str, None] = None
     is_new_joiner: bool
     is_existing_emp: bool
+    first_name: str
+    last_name: str
     answers: List[Dict[str, str]] 

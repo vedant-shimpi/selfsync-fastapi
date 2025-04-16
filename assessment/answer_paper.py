@@ -41,6 +41,8 @@ async def save_bulk_answer_papers(
                 "manager_id": request.manager_id if request.is_new_joiner else None,
                 "is_new_joiner": request.is_new_joiner,
                 "is_existing_emp": request.is_existing_emp,
+                "first_name": request.first_name,
+                "last_name": request.last_name,
                 "answers": request.answers,
                 "created_at": now_time,
                 "updated_at": now_time
