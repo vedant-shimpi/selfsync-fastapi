@@ -10,6 +10,7 @@ from business_logic.contact import router as contact_router
 from assessment.add_candidate import router as add_candidate_router
 from assessment.question_bank import router as question_bank_router
 from assessment.position_role import router as position_role_router
+from assessment.answer_paper import router as answer_paper_router
 
 
 
@@ -46,5 +47,6 @@ app.include_router(contact_router, tags=["contact"])
 app.include_router(add_candidate_router, tags=["add_candidate"])
 app.include_router(question_bank_router, tags=["question_bank"])
 app.include_router(position_role_router, tags=["position_role"])
+app.include_router(answer_paper_router, tags=["answer_paper"])
 
 
