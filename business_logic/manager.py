@@ -178,9 +178,10 @@ async def manager_list(request: ManagerListRequest, db: AsyncIOMotorDatabase = D
 
         result = []
         for manager in managers:
-            full_name = f"{manager.get('first_name', '')} {manager.get('last_name', '')}".strip()
+            # full_name = full_name
             result.append({
-                "full_name": full_name,
+                "manager_id": str(manager["_id"]),
+                "full_name": manager.get("full_name", ""), 
                 "email": manager.get("email", "")
             })
 
