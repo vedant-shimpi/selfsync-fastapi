@@ -7,6 +7,8 @@ from datetime import datetime, timezone, timedelta
 from schemas_validation.assessment import AddCandidateSchemaRequest, CandidateInfoPydanticSchema
 from database import users_collection, assessments_collection, position_collection, candidate_collection
 from business_logic.email import send_html_email
+from bson.son import SON
+
 
 router = APIRouter()
 
@@ -77,7 +79,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
                     "question_count": 60,
                     "due_date": now_time + timedelta(days=1),
                     "custom_instructions": "Read questions carefully and answer properly.",
-                    "assessment_url": "https://assessment.selfsync.ai/test/?assessment={}&hr={}&candidate={}".format(assessments_document["_id"], hr_users_document["_id"], str_uuid_id)
+                    "assessment_url": "https://assessment.selfsync.ai/test/?assessment={}&hr={}&candidate={}&is_new_joiner={}".format(assessments_document["_id"], hr_users_document["_id"], str_uuid_id, request.is_new_joiner)
                 }
             )
 
@@ -86,3 +88,81 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
     except Exception as e:
         return {"success": False, "data":request, "message":str(e)}
     
+
+@router.get("/alocated-assessment-history")
+async def alocated_assessment_history(curr_hr: dict = Depends(get_current_user),):
+    pipeline = [
+        {
+            "$match": {
+                "hr_id": curr_hr["_id"],
+            }
+        },
+        {
+            "$project": {
+                "date_only": {
+                    "$dateToString": { "format": "%Y-%m-%d %H:%M", "date": "$created_at" }
+                },
+                "id":1, "email": 1, "is_assessment_started":1, "is_assessment_completed":1,
+                "exam_completed_at":1, "candidate_score":1, "candidate_remark":1, "assessment_id":1,
+                "is_new_joiner":1, "is_existing_emp":1, "manager_id":1, "manager_email":1,
+                "manager_first_name":1, "manager_last_name":1,
+            }
+        },
+        {
+            "$lookup": {
+                "from": "assessment",
+                "let": { "aid": "$assessment_id" },
+                "pipeline": [
+                    {
+                        "$match": {
+                            "$expr": { "$eq": ["$_id", "$$aid"] }
+                        }
+                    },
+                    {
+                        "$project": {
+                            "_id": 0,
+                            "assessment_name": 1
+                        }
+                    }
+                ],
+                "as": "assessment_info"
+            }
+        },
+        {
+            "$addFields": {
+                "assessment_name": {
+                    "$arrayElemAt": ["$assessment_info.assessment_name", 0]
+                }
+            }
+        },
+        {
+            "$group": {
+                "_id": {  # _id is used for group by; we can pass multiple parameters over here
+                    "date": "$date_only",
+                    "new_joiner_flag": "$is_new_joiner",
+                    "assessment_id": "$assessment_id"
+                },
+                "count": { "$sum": 1 },
+                # "assessment_ids":{ "$addToSet": "$assessment_id" },  # $addToSet = If multiple candidates may have different assessment IDs on the same date; $first = If all assessment_ids are same and you only want one
+                "candidates": {
+                    "$push": {
+                        "id":"$id", "email":"$email", "is_assessment_started":"$is_assessment_started",
+                        "is_assessment_completed":"$is_assessment_completed",
+                        "exam_completed_at":"$exam_completed_at", "candidate_score":"$candidate_score",
+                        "candidate_remark":"$candidate_remark", "is_new_joiner":"$is_new_joiner",
+                        "is_existing_emp":"$is_existing_emp", "manager_id":"$manager_id",
+                        "manager_email":"$manager_email", "manager_first_name":"$manager_first_name",
+                        "manager_last_name":"$manager_last_name", "assessment_name": "$assessment_name"
+                    }
+                }
+            }
+        },
+        {
+            "$sort": SON([("_id.date", -1)])   # latest date on top
+        }
+    ]
+    cursor = candidate_collection.aggregate(pipeline)
+    print("CURSOR>>>", cursor)
+    result = await cursor.to_list(length=None)
+    print("RESULT>>>", result)
+    return {"alocated_assessment_history":result}
