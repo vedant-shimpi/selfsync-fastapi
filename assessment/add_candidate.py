@@ -162,7 +162,5 @@ async def alocated_assessment_history(curr_hr: dict = Depends(get_current_user),
         }
     ]
     cursor = candidate_collection.aggregate(pipeline)
-    print("CURSOR>>>", cursor)
     result = await cursor.to_list(length=None)
-    print("RESULT>>>", result)
     return {"alocated_assessment_history":result}
