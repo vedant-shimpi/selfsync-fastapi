@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
 from database import question_banks_collection, questions_collection, get_db
-from common.auth import get_current_user
 from schemas_validation.question_bank import SubjectRequest
 
 router = APIRouter()

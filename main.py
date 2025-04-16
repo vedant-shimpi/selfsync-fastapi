@@ -8,7 +8,7 @@ from business_logic.add_assessment import router as add_assessment_router
 from business_logic.ip_data import router as ip_data_router
 from business_logic.contact import router as contact_router
 from assessment.add_candidate import router as add_candidate_router
-from business_logic.question_bank import router as question_bank_router
+from assessment.question_bank import router as question_bank_router
 from assessment.position_role import router as position_role_router
 
 
