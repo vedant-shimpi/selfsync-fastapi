@@ -123,14 +123,12 @@ async def create_payment(payment: PaymentBase, current_user: dict = Depends(get_
     }
 
 @router.post("/failed-payment")
-async def failed_payment(
-    request_data: FailedPaymentRequest, current_user: dict = Depends(get_current_user)):
-
+async def failed_payment(request_data: FailedPaymentRequest, current_user: dict = Depends(get_current_user)):
     if not current_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not authenticated!" )
 
     failed_payment_data = {
-        "user_id": str(current_user["_id"]),
+        "user_id": str(current_user["user_pk"]),
         "amount": request_data.amount,
         "contact": request_data.contact,
         "email": request_data.email,

@@ -39,7 +39,7 @@ class TraitScores(BaseModel):
     out_of: Optional[float] = None
 
 class ReportData(BaseModel):
-    _id: str
+    report_pk: str
     candidate_id: str
     manager_id: Optional[str]
     assessment_id: str

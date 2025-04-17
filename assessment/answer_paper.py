@@ -42,7 +42,7 @@ async def save_bulk_answer_papers(
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Exam already completed.")
 
             answer_paper_data = {
-                "_id": str(uuid4()),
+                "answer_paper_pk": str(uuid4()),
                 "assessment_id": request.assessment_id,
                 "hr_id": request.hr_id,
                 "candidate_id": candidate["id"],
@@ -96,7 +96,7 @@ async def save_bulk_answer_papers(
             )
 
             report_data = ReportData(
-                _id=str(uuid4()),
+                report_pk=str(uuid4()),
                 candidate_id=candidate["id"],
                 manager_id=update_fields.get("manager_id"),
                 assessment_id=request.assessment_id,
@@ -106,7 +106,7 @@ async def save_bulk_answer_papers(
                 person_name=f"{request.first_name} {request.last_name}"
             )
 
-            await report_table_collection.insert_one(report_data.dict())
+            await report_table_collection.insert_one(report_data.model_dump())
 
         return {
             "success": True,

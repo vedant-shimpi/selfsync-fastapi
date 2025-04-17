@@ -1,19 +1,17 @@
 from fastapi import APIRouter
 from fastapi import Depends, HTTPException
 from pymongo.errors import DuplicateKeyError
-
+import uuid
 from schemas import CreateAssessment
 from common.auth import get_current_user
 from database import assessments_collection,packages_collection,get_db
 
+
 router = APIRouter()
 
+
 @router.post("/add_assessment")
-async def add_assessment(
-    assessment: CreateAssessment,
-    current_user: dict = Depends(get_current_user),
-    db=Depends(get_db)
-):
+async def add_assessment(assessment: CreateAssessment, current_user: dict = Depends(get_current_user)):
     try:
         assessment_data = assessment.dict()
         assessment_name = assessment.assessment_name.strip()
@@ -29,9 +27,10 @@ async def add_assessment(
         if existing_assessment:
             raise HTTPException(status_code=400, detail="Assessment with this name already exists")
 
-        string_id = str(assessment_data["id"])
-        assessment_data["id"] = string_id
-        assessment_data["_id"] = string_id
+        # string_id = str(assessment_data["id"])
+        # assessment_data["id"] = string_id
+        # assessment_data["_id"] = string_id
+        assessment_data["assessment_id"] = str(uuid.uuid4())
 
         result = await assessments_collection.insert_one(assessment_data)
 

@@ -88,7 +88,7 @@ async def signup(request: SignupRequest, db: AsyncIOMotorDatabase = Depends(get_
 
         # Create user document
         user_data = {
-            "_id": user_id,
+            "user_pk": user_id,
             "username": username,
             "email": request.email,
             "first_name": request.first_name,

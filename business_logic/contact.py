@@ -1,25 +1,16 @@
-from fastapi import APIRouter
-from fastapi import Depends, HTTPException
-from pymongo.errors import DuplicateKeyError
-from database import get_db
+from fastapi import APIRouter,status, HTTPException
 from schemas import CreateContact
-from common.auth import get_current_user
 from business_logic.email import send_html_email
-import os
+from database import contact_collection
+
 
 router = APIRouter()
 
-@router.post("/add_contact")
-async def add_contact(contact: CreateContact, db=Depends(get_db)):
-    contact_collection = db["contact"]
 
-    # Ensure unique contact_id
-    contact_collection.create_index("contact_id", unique=True)
-
+@router.post("/add_contact", status_code=status.HTTP_201_CREATED)
+async def add_contact(contact: CreateContact):
     try:
-        contact_data = contact.dict()
-        contact_data["contact_id"] = str(contact_data["contact_id"])
-        contact_collection.insert_one(contact_data)
+        contact_collection.insert_one(contact.model_dump())
 
         # Decide the template based on contact_us_by
         if contact.contact_us_by == "contact":
@@ -37,27 +28,7 @@ async def add_contact(contact: CreateContact, db=Depends(get_db)):
         )
         
         return {"message": "Your data has been successfully submitted."}
-
-    except DuplicateKeyError:
-        raise HTTPException(status_code=400, detail="Contact with this ID already exists")
-
-
-# @router.post("/add_contact")
-# async def add_contact(contact: CreateContact, db=Depends(get_db)):
-#     contact_collection = db["contact"]
-
-#     # Ensure unique contact_id
-#     contact_collection.create_index("contact_id", unique=True)
-
-#     try:
-#         contact_data = contact.dict()
-#         contact_data["contact_id"] = str(contact_data["contact_id"])
-#         contact_collection.insert_one(contact_data)
-
     
-#         send_html_email(subject="Your contact info was submitted successfully", recipient= contact.email, template_name= "signup_otp.html", context= {"first_name":contact.first_name.capitalize()})
-#         return {"message": "Your data has been successfully submitted."}
-
-#     except DuplicateKeyError:
-#         raise HTTPException(status_code=400, detail="Contact with this ID already exists")
+    except Exception as ex:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred while submitting your data>> {str(ex)}")
     

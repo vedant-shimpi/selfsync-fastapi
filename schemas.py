@@ -4,6 +4,7 @@ from decimal import Decimal
 from datetime import datetime
 from fastapi import Form, UploadFile, File
 from uuid import UUID , uuid4
+import uuid
 from typing import Literal
 
 class SignupRequest(BaseModel):
@@ -32,7 +33,8 @@ class UserLogin(BaseModel):
 
 
 class CreateAssessment(BaseModel):
-    id: Optional[UUID] = Field(default_factory=uuid4)
+    # id: Optional[UUID] = Field(default_factory=uuid4)
+    assessment_id: str
     assessment_name: str
     short_description: str
     long_description: str
@@ -49,7 +51,8 @@ class AddPackage(BaseModel):
     description: List[str]
 
 class CreateContact(BaseModel):
-    contact_id: UUID = Field(default_factory=uuid4)
+    # contact_id: UUID = Field(default_factory=uuid4)
+    contact_pk: str = Field(default_factory=lambda: str(uuid.uuid4()))
     first_name: str
     last_name: str
     email: EmailStr

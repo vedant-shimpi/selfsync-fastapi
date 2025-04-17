@@ -36,7 +36,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
         if not position_document:
             str_uuid_id = str(uuid.uuid4())
             position_details = {
-                "_id": str_uuid_id,
+                "position_pk": str_uuid_id,
                 "position_title":request.position_title,
                 "user_id": hr_users_document["_id"],
                 "description":"",
@@ -51,7 +51,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
             otp = str(random.randint(100000, 999999))
 
             candidate_info = CandidateInfoPydanticSchema(
-                _id=str_uuid_id,
+                candidate_pk=str_uuid_id,
                 # "first_name":"",
                 # "last_name":"",
                 email=candidate_email,

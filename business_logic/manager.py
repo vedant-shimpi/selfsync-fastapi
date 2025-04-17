@@ -93,7 +93,7 @@ async def add_manager(
     user_id = str(uuid.uuid4())
 
     user_data = {
-        "_id": user_id,
+        "user_pk": user_id,
         "username": username,
         "email": manager.email,
         "first_name": first_name,
@@ -127,7 +127,7 @@ async def add_manager(
     }
 
     manager_data = {
-        "_id": user_id,
+        "manager_pk": user_id,
         "email": manager.email,
         "full_name": manager.full_name,
         "password": hash_password(password),
