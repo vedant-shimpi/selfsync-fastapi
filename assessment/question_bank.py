@@ -32,21 +32,25 @@ def remove_question_data(questions):
 async def get_questions_by_assessment(request: AssessmentRequest,
     db: AsyncIOMotorDatabase = Depends(get_db)):
     try:
-        assessment = await assessments_collection.find_one({"_id": (request.assessment_id)})
-        if not assessment:
-            return JSONResponse(status_code=404, content={"success": False, "message": "Assessment not found"})
+        # assessment = await assessments_collection.find_one({"_id": (request.assessment_id)})
+        # if not assessment:
+        #     return JSONResponse(status_code=404, content={"success": False, "message": "Assessment not found"})
 
-        assessment_name = assessment.get("assessment_name")
-        if not assessment_name:
-            return JSONResponse(status_code=400, content={"success": False, "message": "Assessment name not available"})
+        # assessment_name = assessment.get("assessment_name")
+        # if not assessment_name:
+        #     return JSONResponse(status_code=400, content={"success": False, "message": "Assessment name not available"})
 
-        question_bank = await question_banks_collection.find_one({"name": assessment_name})
-        if not question_bank:
-            return JSONResponse(status_code=404, content={"success": False, "message": "Question bank not found for the assessment"})
+        # question_bank = await question_banks_collection.find_one({"name": assessment_name})
+        # if not question_bank:
+        #     return JSONResponse(status_code=404, content={"success": False, "message": "Question bank not found for the assessment"})
 
-        question_ids = question_bank.get("question_ids", [])
-        if not question_ids:
-            return JSONResponse(status_code=200, content={"success": True, "message": "No questions linked to the bank", "questions": []})
+        # question_ids = question_bank.get("question_ids", [])
+        # if not question_ids:
+        #     return JSONResponse(status_code=200, content={"success": True, "message": "No questions linked to the bank", "questions": []})
+        
+        bank = await question_banks_collection.find_one({"name": request.subject_name})
+        if not bank:
+            return {"success": False, "message": "Question bank not found"}
         
         candidate = await candidate_collection.find_one ({"id": (request.candidate_id)})
         if not candidate:
@@ -61,15 +65,21 @@ async def get_questions_by_assessment(request: AssessmentRequest,
             return JSONResponse(status_code=404, content={"success": False, "message": "Candidate already finished exam!"})
 
         # Fetch questions
+        # questions_cursor = questions_collection.find({
+        #     "_id": {"$in": question_ids}})
+        # questions = await questions_cursor.to_list(length=None)
+        question_ids = bank.get("question_ids", [])
         questions_cursor = questions_collection.find({
-            "_id": {"$in": question_ids}})
+            "_id": {"$in": question_ids}
+        })
         questions = await questions_cursor.to_list(length=None)
 
         cleaned_questions = remove_question_data(questions)
 
         return {
             "success": True,
-            "assessment_name": assessment_name,
+            # "assessment_name": assessment_name,
+             "subject": request.subject_name,
             "total_questions": len(cleaned_questions),
             "questions": cleaned_questions
         }

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from database import get_db, report_table_collection, answer_papers_collection, assessments_collection, users_collection, candidate_collection, managers_collection
 from common.auth import get_current_user
-from schemas_validation.answer_paper import SaveAnswerPaperRequest
+from schemas_validation.answer_paper import SaveAnswerPaperRequest, ReportData, TraitScores
 from datetime import datetime, timezone
 from uuid import uuid4
 from typing import List
@@ -62,12 +62,16 @@ async def save_bulk_answer_papers(
             # Update candidate info
             update_fields = {
                 "is_assessment_completed": True,
+                "first_name": request.first_name,
+                "last_name": request.last_name,
                 "updated_at": now_time,
                 "exam_completed_at": now_time,
                 "answer_paper_id": str(answer_paper_id)
             }
 
             if not request.is_new_joiner and request.manager_id:
+                update_fields["first_name"] = request.first_name
+                update_fields["last_name"] = request.last_name
                 manager = await managers_collection.find_one({"_id": request.manager_id})
                 if manager:
                     update_fields["manager_id"] = request.manager_id
@@ -91,19 +95,18 @@ async def save_bulk_answer_papers(
                 {"$set": update_fields}
             )
 
-            report_data = {
-                "_id": str(uuid4()),
-                "candidate_id": candidate["id"],
-                "manager_id": update_fields.get("manager_id"),
-                "assessment_id": request.assessment_id,
-                "hr_id": request.hr_id,
-                "status": "Pending",
-                "is_report_submitted": False,
-                "created_at": now_time,
-                "updated_at": now_time
-            }
+            report_data = ReportData(
+                _id=str(uuid4()),
+                candidate_id=candidate["id"],
+                manager_id=update_fields.get("manager_id"),
+                assessment_id=request.assessment_id,
+                hr_id=request.hr_id,
+                created_at=now_time,
+                updated_at=now_time,
+                person_name=f"{request.first_name} {request.last_name}"
+            )
 
-            await report_table_collection.insert_one(report_data)
+            await report_table_collection.insert_one(report_data.dict())
 
         return {
             "success": True,
