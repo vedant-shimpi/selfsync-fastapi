@@ -23,9 +23,9 @@ async def add_contact(contact: CreateContact, db=Depends(get_db)):
 
         # Decide the template based on contact_us_by
         if contact.contact_us_by == "contact":
-            template = "login_info.html"
+            template = "contact_us_thankyou.html"
         elif contact.contact_us_by == "demo":
-            template = "signup_otp.html"
+            template = "schedule_demo_thankyou.html"
         else:
             template = "default.html" 
 

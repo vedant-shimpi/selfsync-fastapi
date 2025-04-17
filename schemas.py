@@ -20,7 +20,7 @@ class SignupRequest(BaseModel):
     gender: Optional[str] = None
     company_email: Optional[EmailStr] = None
     company_size: Optional[str] = None
-    credit_point: int = 2
+    
 
 
 class OTPVerifyRequest(BaseModel):
