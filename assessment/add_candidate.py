@@ -24,8 +24,19 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
         if not assessments_document:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assessment not found.")
         
+        # Check credit before sending emails
+        email_count = len(request.emails)
+        print(email_count)
+        credit_point = hr_users_document.get("credit_point", 0)
+        print(credit_point)
+
+        if email_count > credit_point:
+            return {"success": False, "message": "Don't have sufficient credits."}
+        
         position_document = await position_collection.find_one({"position_title":request.position_title, "user_id":hr_users_document["_id"]})
         now_time = datetime.now(timezone.utc)
+
+        # If position doesn't exist, create it
         if not position_document:
             str_uuid_id = str(uuid.uuid4())
             position_details = {
@@ -38,9 +49,11 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
             }
             await position_collection.insert_one(position_details)
             position_document = position_collection.find_one({"_id":str_uuid_id})
+            
         for candidate_email in request.emails:
             str_uuid_id = str(uuid.uuid4())
             otp = str(random.randint(100000, 999999))
+
             candidate_info = CandidateInfoPydanticSchema(
                 _id=str_uuid_id,
                 # "first_name":"",
@@ -84,7 +97,14 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
                 }
             )
 
-        return {"success": True, "data": request, "message":"Candidate added successfully."}
+        # Deduct credits from HR account
+        updated_credit = credit_point - email_count
+        await users_collection.update_one(
+            {"_id": hr_users_document["_id"]},
+            {"$set": {"credit_point": updated_credit}}
+        )
+
+        return {"success": True, "data": request, "message": "Candidate(s) added successfully."}
 
     except Exception as e:
         return {"success": False, "data":request, "message":str(e)}
