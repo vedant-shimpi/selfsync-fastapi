@@ -24,11 +24,11 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
         if not assessments_document:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assessment not found.")
         
-        email_count = len(request.emails)
-        credit_point = hr_users_document.get("credit_point", 0)
+        # email_count = len(request.emails)
+        # credit_point = hr_users_document.get("credit_point", 0)
 
-        if email_count > credit_point:
-            return {"success": False, "message": "Don't have sufficient credits."}
+        # if email_count > credit_point:
+        #     return {"success": False, "message": "Don't have sufficient credits."}
         
         position_document = await position_collection.find_one({"position_title":request.position_title, "user_id":hr_users_document["_id"]})
         now_time = datetime.now(timezone.utc)
@@ -94,11 +94,11 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
             )
 
         # Deduct credits from HR account
-        updated_credit = credit_point - email_count
-        await users_collection.update_one(
-            {"_id": hr_users_document["_id"]},
-            {"$set": {"credit_point": updated_credit}}
-        )
+        # updated_credit = credit_point - email_count
+        # await users_collection.update_one(
+        #     {"_id": hr_users_document["_id"]},
+        #     {"$set": {"credit_point": updated_credit}}
+        # )
 
         return {"success": True, "data": request, "message": "Candidate(s) added successfully."}
 
