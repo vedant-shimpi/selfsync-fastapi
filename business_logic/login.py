@@ -116,7 +116,8 @@ async def signup(request: SignupRequest, db: AsyncIOMotorDatabase = Depends(get_
             "company_size": request.company_size or "",
             "date_joined": now_time,
             "updated_at": now_time,
-            "created_at": now_time
+            "created_at": now_time,
+            "credit_point": request.credit_point
         }
 
         await db["users"].insert_one(user_data)
