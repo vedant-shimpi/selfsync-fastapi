@@ -5,6 +5,7 @@ from uuid import UUID
 class SaveAnswerPaperRequest(BaseModel):
     assessment_id: str
     hr_id: str
+    otp: str
     candidate_id: str
     manager_id: Union[str, None] = None
     is_new_joiner: bool
