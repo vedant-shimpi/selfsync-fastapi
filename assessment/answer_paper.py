@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from database import get_db, report_table_collection, answer_papers_collection, assessments_collection, users_collection, candidate_collection, managers_collection
 from common.auth import get_current_user
-from schemas_validation.answer_paper import SaveAnswerPaperRequest, ReportData, TraitScores
+from schemas_validation.answer_paper import SaveAnswerPaperRequest, ReportData, TraitScores, CandidateRequest
 from datetime import datetime, timezone
 from uuid import uuid4
 from typing import List
@@ -115,3 +115,13 @@ async def save_bulk_answer_papers(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.get("/get_reports", response_model=ReportData)
+async def get_report(request: CandidateRequest, db=Depends(get_db)):
+    report = await report_table_collection.find_one({"candidate_id": request.candidate_id})
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found for the given candidate_id.")
+    
+    report["_id"] = str(report["_id"])
+    return report

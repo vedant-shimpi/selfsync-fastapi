@@ -61,3 +61,6 @@ class ReportData(BaseModel):
         "Cliftonstrengths": None,
         "Growth Area": None
     })
+
+class CandidateRequest(BaseModel):
+    candidate_id: str
