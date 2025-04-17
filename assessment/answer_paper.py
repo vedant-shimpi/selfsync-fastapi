@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from database import get_db, answer_papers_collection, assessments_collection, users_collection, candidate_collection, managers_collection
+from database import get_db, report_table_collection, answer_papers_collection, assessments_collection, users_collection, candidate_collection, managers_collection
 from common.auth import get_current_user
 from schemas_validation.answer_paper import SaveAnswerPaperRequest
 from datetime import datetime, timezone
@@ -90,6 +90,20 @@ async def save_bulk_answer_papers(
                 {"id": candidate["id"]},
                 {"$set": update_fields}
             )
+
+            report_data = {
+                "_id": str(uuid4()),
+                "candidate_id": candidate["id"],
+                "manager_id": update_fields.get("manager_id"),
+                "assessment_id": request.assessment_id,
+                "hr_id": request.hr_id,
+                "status": "Pending",
+                "is_report_submitted": False,
+                "created_at": now_time,
+                "updated_at": now_time
+            }
+
+            await report_table_collection.insert_one(report_data)
 
         return {
             "success": True,
