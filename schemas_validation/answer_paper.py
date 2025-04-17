@@ -18,18 +18,23 @@ class SaveAnswerPaperRequest(BaseModel):
 class TraitScores(BaseModel):
     scores: Dict[str, Optional[float]] = Field(default_factory=lambda: {
         "Trait Inference": None,
-        "Responsibility": None,
-        "Urgency": None,
-        "Extraversion": None,
-        "Stress Tolerance": None,
-        "Pragmatism": None,
+        "Trait": None,
+        "Evidence": None,
         "Model Mapping": None,
         "Mbti": None,
         "Big Five": None,
         "Disc": None,
         "Enneagram": None,
         "Cliftonstrengths": None,
-        "Growth Area": None
+        "Growth Area": None,
+        "Assertiveness": None,
+        "Conscientiousness": None,
+        "Emotional Stability": None,
+        "Introversion": None,
+        "Resilience": None,
+        "Thinking": None,
+        "Steadiness": None,
+        "Potential Blind Spots": None
     })
     out_of: Optional[float] = None
 
@@ -48,18 +53,23 @@ class ReportData(BaseModel):
     traits_score: TraitScores = Field(default_factory=TraitScores)
     trait_categories: Dict[str, Optional[float]] = Field(default_factory=lambda: {
         "Trait Inference": None,
-        "Responsibility": None,
-        "Urgency": None,
-        "Extraversion": None,
-        "Stress Tolerance": None,
-        "Pragmatism": None,
+        "Trait": None,
+        "Evidence": None,
         "Model Mapping": None,
         "Mbti": None,
         "Big Five": None,
         "Disc": None,
         "Enneagram": None,
         "Cliftonstrengths": None,
-        "Growth Area": None
+        "Growth Area": None,
+        "Assertiveness": None,
+        "Conscientiousness": None,
+        "Emotional Stability": None,
+        "Introversion": None,
+        "Resilience": None,
+        "Thinking": None,
+        "Steadiness": None,
+        "Potential Blind Spots": None
     })
 
 class CandidateRequest(BaseModel):
