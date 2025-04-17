@@ -33,4 +33,5 @@ packages_collection = db["packages"]
 question_banks_collection = db["question_banks"]
 questions_collection = db["questions"]
 answer_papers_collection = db["answer_papers"]
+failed_payments_collection = db["failed_payments"]
 

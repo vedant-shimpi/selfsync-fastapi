@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse
 from uuid import uuid4
 import requests
-from schemas_validation.payment import CreateOrderRequest, PaymentResponse, PaymentBase, PaymentRequest
-from database import get_db, users_collection, packages_collection
+from schemas_validation.payment import CreateOrderRequest, PaymentResponse, PaymentBase, PaymentRequest, FailedPaymentRequest
+from database import get_db, users_collection, packages_collection, failed_payments_collection
 from config import RAZORPAY_URL, RAZORPAY_API_KEY, RAZORPAY_SECRET_KEY
 from common.auth import get_current_user
 from pymongo import ReturnDocument
 from motor.motor_asyncio import AsyncIOMotorClient
-import os
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -122,4 +122,26 @@ async def create_payment(payment: PaymentBase, current_user: dict = Depends(get_
         }
     }
 
+@router.post("/failed-payment")
+async def failed_payment(
+    request_data: FailedPaymentRequest, current_user: dict = Depends(get_current_user)):
 
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not authenticated!" )
+
+    failed_payment_data = {
+        "user_id": str(current_user["_id"]),
+        "amount": request_data.amount,
+        "contact": request_data.contact,
+        "email": request_data.email,
+        "razorpay_order_id": request_data.razorpay_order_id,
+        "date_time": request_data.date_time or datetime.now(timezone.utc).isoformat(),
+        "level": request_data.level,
+        "problem": request_data.problem,
+        "created_at": datetime.now(timezone.utc)
+    }
+
+    await failed_payments_collection.insert_one(failed_payment_data)
+
+    return JSONResponse(
+        content={"success": True, "message": "Saved successfully!"}, status_code=status.HTTP_201_CREATED)

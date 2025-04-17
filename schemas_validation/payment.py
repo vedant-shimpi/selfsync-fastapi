@@ -69,3 +69,11 @@ class PaymentRequest(BaseModel):
     occasion_no: Optional[str] = Field(None, description="Optional occasion number")
     razorpay_order_id: Optional[str] = Field(None, description="Optional Razorpay order ID")
 
+class FailedPaymentRequest(BaseModel):
+    amount: float = Field(..., description="Amount is required field.")
+    contact: Optional[str] = ''
+    email: Optional[str] = ''
+    razorpay_order_id: Optional[str] = ''
+    date_time: Optional[str] = ''
+    level: Optional[str] = ''
+    problem: Optional[str] = ''
