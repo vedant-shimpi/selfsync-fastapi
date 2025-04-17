@@ -78,7 +78,7 @@ async def resend_candidate_otp(request: ResendCandidateOtpPydanticSchema):
     if not candidate_document:
         return JSONResponse(content={"success":False, "message":"Invalid candidate id."}, status_code=status.HTTP_404_NOT_FOUND)
     
-    assessments_document = await assessments_collection.find_one({"id":request.assessment_id})
+    assessments_document = await assessments_collection.find_one({"_id":request.assessment_id})
     if not assessments_document:
         return JSONResponse(content={"success":False, "message":"Invalid assessment id."}, status_code=status.HTTP_404_NOT_FOUND)
     
