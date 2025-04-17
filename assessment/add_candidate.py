@@ -61,7 +61,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
                 is_existing_emp= request.is_existing_emp,
                 otp= otp,
                 # "otp_try_datetime": None,
-                # "otp_created_at": now_time,
+                otp_created_at= now_time,
                 otp_verify_status= False,
                 status=CANDIDATE_STATUS["otp_sent"],
                 # "manager_id":'',

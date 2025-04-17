@@ -35,9 +35,13 @@ class CandidateInfoPydanticSchema(BaseModel):
     is_new_joiner: bool
     is_existing_emp: bool
     otp: str
-    otp_try_datetime: Optional[datetime] = None
     otp_created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    otp_verify_status: bool
+    otp_verify_status: bool = False
+    otp_try_datetime: Optional[datetime] = None
+    otp_attempts: int = 0  # Failed attempts
+    otp_blocked_until: Optional[datetime] = None
+    otp_resend_count: int = 0
+    otp_resend_blocked_until: Optional[datetime] = None
     status: str
     manager_id: Optional[str] = None
     manager_email: Optional[EmailStr] = None

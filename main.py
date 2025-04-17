@@ -12,7 +12,7 @@ from assessment.question_bank import router as question_bank_router
 from assessment.position_role import router as position_role_router
 from assessment.answer_paper import router as answer_paper_router
 from business_logic.payment import router as payment_router
-
+from assessment.otp_candidate import router as assessment_otp_candidate_router
 
 
 app = FastAPI()
@@ -50,5 +50,5 @@ app.include_router(question_bank_router, tags=["question_bank"])
 app.include_router(position_role_router, tags=["position_role"])
 app.include_router(answer_paper_router, tags=["answer_paper"])
 app.include_router(payment_router, tags=["payment"])
-
+app.include_router(assessment_otp_candidate_router, tags=["assessment_otp_candidate"])
 
