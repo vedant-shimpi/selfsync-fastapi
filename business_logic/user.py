@@ -107,33 +107,34 @@ async def update_userprofile(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
 @router.post("/deactivate_manager", response_model=dict)
 async def deactivate_manager(
-    payload: ManagerStatusUpdate,current_user: dict = Depends(get_current_user),
-    db=Depends(get_db)):
+    payload: ManagerStatusUpdate,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db)
+):
     try:
-        if current_user.get("user_type") != "hr":
+        if current_user.get('user_type') != 'hr':
             return {"success": False, "message": "You are not authorized to perform this action."}
 
         manager_user_id = payload.id
         is_deleted_value = payload.is_deleted
 
         manager_user = await users_collection.find_one({
-            "_id": manager_user_id,
+            "user_pk": manager_user_id,
             "user_type": "manager"
         })
         if not manager_user:
             return {"success": False, "message": "Manager not found or invalid user type."}
 
         #  Check that this manager was added by current HR
-        manager_doc = await managers_collection.find_one({"_id": manager_user_id})
-        if not manager_doc or manager_doc.get("hr_id") != current_user["_id"]:
+        manager_doc = await managers_collection.find_one({"manager_pk": manager_user_id})
+        if not manager_doc or manager_doc.get("hr_id") != current_user["user_pk"]:
             return {"success": False, "message": "You are not authorized to modify this manager."}
 
-        #  Update is_deleted
+        # Update the is_deleted status
         result = await users_collection.update_one(
-            {"_id": manager_user_id},
+            {"user_pk": manager_user_id},
             {"$set": {"is_deleted": is_deleted_value}}
         )
 
