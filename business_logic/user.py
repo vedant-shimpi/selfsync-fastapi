@@ -15,8 +15,6 @@ router = APIRouter()
 async def get_userprofile(current_user: dict = Depends(get_current_user), db=Depends(get_db)):
     try:
         user_id = current_user["user_pk"]
-        print(111)
-
         projection = {
             "password": 0,
             "otp": 0,
@@ -25,15 +23,12 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
             "otp_verify_status": 0,
             "_id": 0
         }
-
         user = await users_collection.find_one({"user_pk": user_id}, projection)
 
         if not user or (user["user_type"] == "manager" and user.get("is_deleted") == True):
             return {"success": False, "message": "User not found or deleted"}
 
-        print(222)
         user["user_pk"] = str(user["user_pk"])
-        print("user************", user)
 
         # If user is a manager, fetch their own manager record
         if user["user_type"] == "manager":
@@ -44,7 +39,6 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
                 manager["manager_pk"] = str(manager["manager_pk"])
                 manager["hr_id"] = str(manager["hr_id"])
 
-            print("manager)))))))))", manager)
             return {
                 "success": True,
                 "data": {
@@ -53,13 +47,10 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
                 }
             }
 
-        print(333)
-
         # If user is HR, fetch all managers under them
         if user["user_type"] == "hr":
             manager_cursor = managers_collection.find({"hr_id": user_id})
             manager_list = []
-            print(444)
 
             async for manager in manager_cursor:
                 # You may or may not need this additional user query — keep if needed
@@ -75,7 +66,6 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
                     manager["hr_id"] = str(manager["hr_id"])
                     manager_list.append(manager)
 
-            print(555)
             return {
                 "success": True,
                 "data": {
@@ -84,14 +74,12 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
                 }
             }
 
-        print(666)
         return {
             "success": True,
             "data": user
         }
 
     except Exception as e:
-        print("ERROR>>>>>>>>>>>>>>>", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 
