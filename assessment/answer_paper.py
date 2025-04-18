@@ -19,17 +19,17 @@ async def save_bulk_answer_papers(
 
         for request in requests:
             # Check if assessment exists
-            assessment = await assessments_collection.find_one({"_id": request.assessment_id})
+            assessment = await assessments_collection.find_one({"assessment_pk": request.assessment_id})
             if not assessment:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Assessment not found for ID: {request.assessment_id}")
 
             # Check if HR exists
-            hr = await users_collection.find_one({"_id": request.hr_id})
+            hr = await users_collection.find_one({"user_pk": request.hr_id})
             if not hr:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"HR not found for ID: {request.hr_id}")
 
             # Check if candidate exists
-            candidate = await candidate_collection.find_one({"id": request.candidate_id})
+            candidate = await candidate_collection.find_one({"candidate_pk": request.candidate_id})
             if not candidate:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate not found!")
 
@@ -45,7 +45,7 @@ async def save_bulk_answer_papers(
                 "answer_paper_pk": str(uuid4()),
                 "assessment_id": request.assessment_id,
                 "hr_id": request.hr_id,
-                "candidate_id": candidate["id"],
+                "candidate_id": candidate["candidate_pk"],
                 "manager_id": request.manager_id if not request.is_new_joiner else None,
                 "is_new_joiner": request.is_new_joiner,
                 "is_existing_emp": request.is_existing_emp,
@@ -72,7 +72,7 @@ async def save_bulk_answer_papers(
             if not request.is_new_joiner and request.manager_id:
                 update_fields["first_name"] = request.first_name
                 update_fields["last_name"] = request.last_name
-                manager = await managers_collection.find_one({"_id": request.manager_id})
+                manager = await managers_collection.find_one({"manager_pk": request.manager_id})
                 if manager:
                     update_fields["manager_id"] = request.manager_id
                     update_fields["manager_email"] = manager.get("email")
@@ -91,13 +91,13 @@ async def save_bulk_answer_papers(
                         update_fields["manager_last_name"] = ""
 
             await candidate_collection.update_one(
-                {"id": candidate["id"]},
+                {"candidate_pk": candidate["candidate_pk"]},
                 {"$set": update_fields}
             )
 
             report_data = ReportData(
                 report_pk=str(uuid4()),
-                candidate_id=candidate["id"],
+                candidate_id=candidate["candidate_pk"],
                 manager_id=update_fields.get("manager_id"),
                 assessment_id=request.assessment_id,
                 hr_id=request.hr_id,

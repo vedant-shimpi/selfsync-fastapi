@@ -52,7 +52,7 @@ async def get_questions_by_assessment(request: AssessmentRequest,
         if not bank:
             return {"success": False, "message": "Question bank not found"}
         
-        candidate = await candidate_collection.find_one ({"id": (request.candidate_id)})
+        candidate = await candidate_collection.find_one ({"candidate_pk": (request.candidate_id)})
         if not candidate:
             return JSONResponse(status_code=404, content={"success": False, "message": "Candidate not found!"})
         
@@ -60,7 +60,7 @@ async def get_questions_by_assessment(request: AssessmentRequest,
         if candidate.get("otp") != request.otp:
             return JSONResponse(status_code=400, content={"success": False, "message": "Invalid OTP!"})
         
-        candidate = await candidate_collection.find_one({"is_assessment_completed": False, "id": (request.candidate_id)})
+        candidate = await candidate_collection.find_one({"is_assessment_completed": False, "candidate_pk": (request.candidate_id)})
         if not candidate:
             return JSONResponse(status_code=404, content={"success": False, "message": "Candidate already finished exam!"})
 
