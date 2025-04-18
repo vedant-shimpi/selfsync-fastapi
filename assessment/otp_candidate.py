@@ -5,7 +5,7 @@ import random
 from datetime import datetime, timezone, timedelta
 from business_logic.email import send_html_email
 from schemas_validation.candidate_otp import VerifyCandidateOtpPydanticSchema, ResendCandidateOtpPydanticSchema
-from bson import ObjectId
+from common.constants import OTP_RESEND_BLOCKED_MINUTES, OTP_RESEND_MAX_COUNT, MAX_OTP_WRONG_ATTEMPTS, OTP_WRONG_ATTEMPTS_BLOCKED_MINUTES
 
 
 router = APIRouter()
@@ -14,7 +14,7 @@ router = APIRouter()
 @router.post("/verify-candiate-otp")
 async def verify_candiate_otp(request:VerifyCandidateOtpPydanticSchema):
     try:
-        candidate_document = await candidate_collection.find_one({"id": request.candidate_id})
+        candidate_document = await candidate_collection.find_one({"candidate_pk": request.candidate_id})
         if not candidate_document:
             return JSONResponse(content={"success":False, "message":"Invalid candidate id."}, status_code=status.HTTP_404_NOT_FOUND)
         
@@ -39,7 +39,7 @@ async def verify_candiate_otp(request:VerifyCandidateOtpPydanticSchema):
         if candidate_document["otp"] == request.otp:
             # Reset attempt count and mark as verified
             await candidate_collection.update_one(
-                {"id": request.candidate_id},
+                {"candidate_pk": request.candidate_id},
                 {
                     "$set": {
                         "otp_verify_status": True,
@@ -59,12 +59,12 @@ async def verify_candiate_otp(request:VerifyCandidateOtpPydanticSchema):
         }
 
         # If 3 wrong attempts, block for 30 minutes
-        if attempts >= 3:
-            update_data["otp_blocked_until"] = now + timedelta(minutes=30)
+        if attempts >= MAX_OTP_WRONG_ATTEMPTS:
+            update_data["otp_blocked_until"] = now + timedelta(minutes=OTP_WRONG_ATTEMPTS_BLOCKED_MINUTES)
             update_data["otp_attempts"] = 0  # Optional: reset or keep at 3
 
         await candidate_collection.update_one(
-            {"id": request.candidate_id},
+            {"candidate_pk": request.candidate_id},
             {"$set": update_data}
         )
         return JSONResponse(content={"success":False, "message":"Invalid OTP."}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -74,15 +74,15 @@ async def verify_candiate_otp(request:VerifyCandidateOtpPydanticSchema):
 
 @router.post("/resend-candidate-otp")
 async def resend_candidate_otp(request: ResendCandidateOtpPydanticSchema):
-    candidate_document = await candidate_collection.find_one({"id":request.candidate_id})
+    candidate_document = await candidate_collection.find_one({"candidate_pk":request.candidate_id})
     if not candidate_document:
         return JSONResponse(content={"success":False, "message":"Invalid candidate id."}, status_code=status.HTTP_404_NOT_FOUND)
     
-    assessments_document = await assessments_collection.find_one({"_id":request.assessment_id})
+    assessments_document = await assessments_collection.find_one({"assessment_pk":request.assessment_id})
     if not assessments_document:
         return JSONResponse(content={"success":False, "message":"Invalid assessment id."}, status_code=status.HTTP_404_NOT_FOUND)
     
-    hr_users_document = await users_collection.find_one({"_id":request.hr_id})
+    hr_users_document = await users_collection.find_one({"user_pk":request.hr_id})
     if not hr_users_document:
         return JSONResponse(content={"success":False, "message":"Invalid hr id."}, status_code=status.HTTP_404_NOT_FOUND)
     
@@ -96,12 +96,12 @@ async def resend_candidate_otp(request: ResendCandidateOtpPydanticSchema):
 
     # Check resend count
     resend_count = candidate_document.get("otp_resend_count", 0)
-    if resend_count >= 5:
+    if resend_count >= OTP_RESEND_MAX_COUNT:
         await candidate_collection.update_one(
-            {"id": request.candidate_id},
+            {"candidate_pk": request.candidate_id},
             {
                 "$set": {
-                    "otp_resend_blocked_until": now + timedelta(minutes=10),
+                    "otp_resend_blocked_until": now + timedelta(minutes=OTP_RESEND_BLOCKED_MINUTES),
                     "otp_resend_count": 0  # Optional: reset or keep at 5
                 }
             }
@@ -113,7 +113,7 @@ async def resend_candidate_otp(request: ResendCandidateOtpPydanticSchema):
 
     # Update in DB
     await candidate_collection.update_one(
-        {"id": request.candidate_id},
+        {"candidate_pk": request.candidate_id},
         {
             "$set": {
                 "otp": new_otp,
@@ -131,7 +131,7 @@ async def resend_candidate_otp(request: ResendCandidateOtpPydanticSchema):
                     "question_count": assessments_document.get("question_count", 60),
                     "due_date": (now + timedelta(days=1)).strftime("%d/%m/%Y %H:%M"),
                     "custom_instructions": "Read questions carefully and answer properly.",
-                    "assessment_url": "https://assessment.selfsync.ai/test/?assessment={}&hr={}&candidate={}&is_new_joiner={}".format(assessments_document["_id"], hr_users_document["_id"], request.candidate_id, candidate_document["is_new_joiner"]),
+                    "assessment_url": "https://assessment.selfsync.ai/test/?assessment={}&hr={}&candidate={}&is_new_joiner={}".format(assessments_document["assessment_pk"], hr_users_document["user_pk"], request.candidate_id, candidate_document["is_new_joiner"]),
                     "otp":new_otp
                 })
     return JSONResponse(content={"success":True, "message":"OTP resent successfully"}, status_code=status.HTTP_200_OK)
