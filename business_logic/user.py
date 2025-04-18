@@ -10,28 +10,34 @@ router = APIRouter()
 @router.get("/get_user_details", response_model=dict)
 async def get_userprofile(current_user: dict = Depends(get_current_user), db=Depends(get_db)):
     try:
-        user_id = current_user["_id"]
+        user_id = current_user["user_pk"]
+        print(111)
 
         projection = {
             "password": 0,
             "otp": 0,
             "otp_created_at": 0,
             "login_otp_try_dt": 0,
-            "otp_verify_status": 0
+            "otp_verify_status": 0,
+            "_id":0
         }
 
-        user = await users_collection.find_one({"_id": user_id}, projection)
+        user = await users_collection.find_one({"user_pk": user_id}, projection)
         if not user or (user["user_type"] == "manager" and user.get("is_deleted") == True):
             return {"success": False, "message": "User not found or deleted"}
+        print(222)
 
-
-        user["_id"] = str(user["_id"])
+        user["user_pk"] = str(user["user_pk"])
+        print("user************",user)
 
         # If user is a manager, fetch linked manager details
-        if user["user_type"] == "manager":
-            manager = await managers_collection.find_one({"_id": user.get("manager_id")})
+        if user["user_type"] == "hr":
+            manager = await managers_collection.find_one({"hr_id": user.get("user_pk")})
+            
             if manager:
-                manager["_id"] = str(manager["_id"])
+                manager["manager_pk"] = str(manager["manager_pk"])
+                manager["_id"] = str(manager["_id"])  # Optional: in case you return _id
+            print("manager)))))))))", manager)
             return {
                 "success": True,
                 "data": {
@@ -40,22 +46,27 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
                 }
             }
 
+        print(333)
+
         # If user is HR, fetch all managers
         if user["user_type"] == "hr":
             manager_cursor = managers_collection.find({"hr_id": user_id})
             manager_list = []
+            print(444)
 
             async for manager in manager_cursor:
                 manager_user = await users_collection.find_one({
-                    "manager_id": manager["_id"],
+                    "manager_id": manager["manager_pk"],
                     "user_type": "manager",
                     "is_deleted": False
                 }, projection)
 
                 if manager_user:
-                    manager["_id"] = str(manager["_id"])
+                    manager["manager_pk"] = str(manager["manager_pk"])
                     manager_list.append(manager)
-
+            print(555)
+            print(manager_list)
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
             return {
                 "success": True,
                 "data": {
@@ -63,13 +74,14 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
                     "managers": manager_list
                 }
             }
-
+        print(666)
         return {
             "success": True,
             "data": user
         }
 
     except Exception as e:
+        print("ERROR>>>>>>>>>>>>>>>",str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 
