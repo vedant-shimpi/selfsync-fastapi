@@ -39,28 +39,26 @@ async def add_manager(
     # Validate HR
     hr_exists = await users_collection.find_one({"user_pk": str(manager.hr_id)})
     if not hr_exists:
-        raise HTTPException(status_code=404, detail="Provided hr_id does not exist or is not an HR.")
+        return {"success": False, "message": "Provided hr_id does not exist or is not an HR."}
 
-    # Check if manager already exists for same HR
+    # Check if a manager with the same email and hr_id exists
     existing_manager = await managers_collection.find_one({
         "email": manager.email,
         "hr_id": manager.hr_id
     })
 
     if existing_manager:
-        if existing_manager.get("is_deleted", False):
-            await managers_collection.update_one(
-                {"manager_pk": existing_manager["manager_pk"]},
-                {
-                    "$set": {
-                        "full_name": manager.full_name,
-                        "is_deleted": False,
-                        "updated_at": now
-                    }
-                }
-            )
+
+        manager_user = await users_collection.find_one({"user_pk": existing_manager["manager_pk"]})
+        if manager_user and not manager_user.get("is_deleted", False):
+            return {"success": False, "message": "This manager is already added by you."}
+
+        else:
+            # Reactivate deleted manager
+            manager_pk = existing_manager["manager_pk"]
+
             await users_collection.update_one(
-                {"user_pk": existing_manager["manager_pk"]},
+                {"user_pk": manager_pk},
                 {
                     "$set": {
                         "first_name": first_name,
@@ -70,9 +68,36 @@ async def add_manager(
                     }
                 }
             )
+
+            # Update managers_collection
+            await managers_collection.update_one(
+                {"manager_pk": manager_pk, "hr_id": manager.hr_id},
+                {
+                    "$set": {
+                        "full_name": manager.full_name,
+                        "is_deleted": False,
+                        "updated_at": now
+                    }
+                }
+            )
             return {"success": True, "message": "Manager reactivated successfully."}
 
-    # Create new manager even if email already exists (different HR)
+    # Check if a manager with the same email exists for a different HR
+    existing_user = await users_collection.find_one({
+        "email": manager.email,
+        "user_type": "manager"
+    })
+
+    if existing_user:
+        # Check if the manager is active for another HR
+        other_manager = await managers_collection.find_one({
+            "manager_pk": existing_user["user_pk"],
+            "hr_id": {"$ne": manager.hr_id},
+            "is_deleted": False
+        })
+        if other_manager:
+            return {"success": False, "message": "This manager is already added by another HR."}
+
     password = generate_unique_password(first_name)
     while True:
         suffix = "".join(random.choices(string.digits, k=4))
