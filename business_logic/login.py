@@ -10,7 +10,7 @@ import random
 import string
 from common.utils import create_access_token, hash_password, verify_password
 from jose import JWTError, jwt
-from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from common.constants import ACCESS_TOKEN_EXPIRE_MINUTES
 from business_logic.email import send_html_email
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
