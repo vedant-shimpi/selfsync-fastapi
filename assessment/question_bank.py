@@ -12,7 +12,7 @@ def remove_question_data(questions):
 
     for question in questions:
         cleaned = {
-            "question_id": str(question["question_id"]),
+            "_id": str(question["question_id"]),
             "question_text": question["question_text"],
             "category": question.get("category"),
             "type": question.get("type"),
