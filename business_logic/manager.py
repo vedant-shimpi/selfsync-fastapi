@@ -37,50 +37,40 @@ async def add_manager(
     now = datetime.now(timezone.utc)
 
     # Validate HR
-    hr_exists = await users_collection.find_one({"_id": str(manager.hr_id)})
+    hr_exists = await users_collection.find_one({"user_pk": str(manager.hr_id)})
     if not hr_exists:
-        return {"success": False, "message": "Provided hr_id does not exist or is not an HR."}
+        raise HTTPException(status_code=404, detail="Provided hr_id does not exist or is not an HR.")
 
     # Check if manager already exists for same HR
-    existing_user = await users_collection.find_one({
+    existing_manager = await managers_collection.find_one({
         "email": manager.email,
-        "user_type": "manager"
+        "hr_id": manager.hr_id
     })
 
-    if existing_user:
-        existing_manager = await managers_collection.find_one({
-            "_id": existing_user["_id"],
-            "hr_id": manager.hr_id
-        })
-
-        if existing_manager:
-            if not existing_user.get("is_deleted", False):
-                return {"success": False, "message": "This manager is already added by you."}
-            else:
-                # Reactivate deleted manager
-                await users_collection.update_one(
-                    {"_id": existing_user["_id"]},
-                    {
-                        "$set": {
-                            "first_name": first_name,
-                            "last_name": last_name,
-                            "is_deleted": False,
-                            "updated_at": now
-                        }
+    if existing_manager:
+        if existing_manager.get("is_deleted", False):
+            await managers_collection.update_one(
+                {"manager_pk": existing_manager["manager_pk"]},
+                {
+                    "$set": {
+                        "full_name": manager.full_name,
+                        "is_deleted": False,
+                        "updated_at": now
                     }
-                )
-
-                await managers_collection.update_one(
-                    {"_id": existing_user["_id"]},
-                    {
-                        "$set": {
-                            "full_name": manager.full_name,
-                            "updated_at": now
-                        }
+                }
+            )
+            await users_collection.update_one(
+                {"user_pk": existing_manager["manager_pk"]},
+                {
+                    "$set": {
+                        "first_name": first_name,
+                        "last_name": last_name,
+                        "is_deleted": False,
+                        "updated_at": now
                     }
-                )
-
-                return {"success": True, "message": "Manager reactivated successfully."}
+                }
+            )
+            return {"success": True, "message": "Manager reactivated successfully."}
 
     # Create new manager even if email already exists (different HR)
     password = generate_unique_password(first_name)
@@ -133,18 +123,29 @@ async def add_manager(
         "password": hash_password(password),
         "hr_id": manager.hr_id,
         "created_at": now,
-        "updated_at": now
+        "updated_at": now,
+        "is_deleted": False
     }
 
     try:
         await users_collection.insert_one(user_data)
         await managers_collection.insert_one(manager_data)
 
-        send_html_email(subject="login information", recipient= manager.email, template_name= "login_info.html", context= {"first_name":first_name.capitalize(), "email":manager.email, "password":password})
+        send_html_email(
+            subject="Login Information",
+            recipient=manager.email,
+            template_name="login_info.html",
+            context={
+                "first_name": first_name.capitalize(),
+                "email": manager.email,
+                "password": password
+            }
+        )
 
         return {"success": True, "message": "Manager created, login enabled, and email sent."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.get("/get_manager_info", response_model=dict)
@@ -155,7 +156,7 @@ async def get_manager_info(
     try:
         manager = await managers_collection.find_one(
             {"email": current_user["email"]},
-            {"_id": 0, "password": 0}
+            {"manager_pk": 0, "password": 0}
         )
 
         if not manager:
@@ -180,7 +181,7 @@ async def manager_list(request: ManagerListRequest, db: AsyncIOMotorDatabase = D
         for manager in managers:
             # full_name = full_name
             result.append({
-                "manager_id": str(manager["_id"]),
+                "manager_id": str(manager["manager_pk"]),
                 "full_name": manager.get("full_name", ""), 
                 "email": manager.get("email", "")
             })
