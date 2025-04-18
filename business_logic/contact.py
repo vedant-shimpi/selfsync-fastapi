@@ -31,7 +31,7 @@ async def add_contact(contact: CreateContact):
 
         send_html_email(
             subject=f"New {contact.contact_us_by.capitalize()} Submission",
-            recipient="pooja.more@digikore.com",
+            recipient=" support@selfsync.ai",
             template_name=support_template,
             context={
                 "first_name": contact.first_name,
