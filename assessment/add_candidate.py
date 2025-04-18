@@ -30,7 +30,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
         # if email_count > credit_point:
         #     return {"success": False, "message": "Don't have sufficient credits."}
         
-        position_document = await position_collection.find_one({"position_title":request.position_title, "user_id":hr_users_document["_id"]})
+        position_document = await position_collection.find_one({"position_title":request.position_title, "user_id":hr_users_document["user_pk"]})
         now_time = datetime.now(timezone.utc)
 
         if not position_document:
@@ -38,7 +38,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
             position_details = {
                 "position_pk": str_uuid_id,
                 "position_title":request.position_title,
-                "user_id": hr_users_document["_id"],
+                "user_id": hr_users_document["user_pk"],
                 "description":"",
                 "created_at":now_time,
                 "updated_at":now_time
@@ -55,8 +55,8 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
                 # "first_name":"",
                 # "last_name":"",
                 email=candidate_email,
-                assessment_id= assessments_document['_id'],
-                hr_id=hr_users_document["_id"],
+                assessment_id= assessments_document['assessment_pk'],
+                hr_id=hr_users_document["user_pk"],
                 is_new_joiner= request.is_new_joiner,
                 is_existing_emp= request.is_existing_emp,
                 otp= otp,
@@ -88,7 +88,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
                     "question_count": assessments_document.get("question_count", 60),
                     "due_date": (now_time + timedelta(days=1)).strftime("%d/%m/%Y %H:%M"),
                     "custom_instructions": "Read questions carefully and answer properly.",
-                    "assessment_url": "https://assessment.selfsync.ai/test/?assessment={}&hr={}&candidate={}&is_new_joiner={}".format(assessments_document["_id"], hr_users_document["_id"], str_uuid_id, request.is_new_joiner),
+                    "assessment_url": "https://assessment.selfsync.ai/test/?assessment={}&hr={}&candidate={}&is_new_joiner={}".format(assessments_document["assessment_pk"], hr_users_document["user_pk"], str_uuid_id, request.is_new_joiner),
                     "otp":otp
                 }
             )
@@ -96,7 +96,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
         # Deduct credits from HR account
         # updated_credit = credit_point - email_count
         # await users_collection.update_one(
-        #     {"_id": hr_users_document["_id"]},
+        #     {"user_pk": hr_users_document["user_pk"]},
         #     {"$set": {"credit_point": updated_credit}}
         # )
 
@@ -111,7 +111,7 @@ async def alocated_assessment_history(curr_hr: dict = Depends(get_current_user),
     pipeline = [
         {
             "$match": {
-                "hr_id": curr_hr["_id"],
+                "hr_id": curr_hr["user_pk"],
             }
         },
         {
@@ -119,7 +119,7 @@ async def alocated_assessment_history(curr_hr: dict = Depends(get_current_user),
                 "date_only": {
                     "$dateToString": { "format": "%Y-%m-%d %H:%M", "date": "$created_at" }
                 },
-                "id":1, "email": 1, "is_assessment_started":1, "is_assessment_completed":1,
+                "candidate_pk":1, "email": 1, "is_assessment_started":1, "is_assessment_completed":1,
                 "exam_completed_at":1, "candidate_score":1, "candidate_remark":1, "assessment_id":1,
                 "is_new_joiner":1, "is_existing_emp":1, "manager_id":1, "manager_email":1,
                 "manager_first_name":1, "manager_last_name":1,
@@ -132,7 +132,7 @@ async def alocated_assessment_history(curr_hr: dict = Depends(get_current_user),
                 "pipeline": [
                     {
                         "$match": {
-                            "$expr": { "$eq": ["$_id", "$$aid"] }
+                            "$expr": { "$eq": ["$assessment_pk", "$$aid"] }
                         }
                     },
                     {
@@ -163,7 +163,7 @@ async def alocated_assessment_history(curr_hr: dict = Depends(get_current_user),
                 # "assessment_ids":{ "$addToSet": "$assessment_id" },  # $addToSet = If multiple candidates may have different assessment IDs on the same date; $first = If all assessment_ids are same and you only want one
                 "candidates": {
                     "$push": {
-                        "id":"$id", "email":"$email", "is_assessment_started":"$is_assessment_started",
+                        "candidate_pk":"$candidate_pk", "email":"$email", "is_assessment_started":"$is_assessment_started",
                         "is_assessment_completed":"$is_assessment_completed",
                         "exam_completed_at":"$exam_completed_at", "candidate_score":"$candidate_score",
                         "candidate_remark":"$candidate_remark", "is_new_joiner":"$is_new_joiner",

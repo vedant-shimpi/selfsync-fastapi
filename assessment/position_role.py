@@ -13,7 +13,7 @@ async def get_position_list(curr_hr: dict = Depends(get_current_user)):
         if not hr_users_document:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid token or user not found.")
         
-        positions_cursor_list = [doc["position_title"] async for doc in position_collection.find({"user_id": hr_users_document["_id"]})]
+        positions_cursor_list = [doc["position_title"] async for doc in position_collection.find({"user_id": hr_users_document["user_pk"]})]
 
         if not positions_cursor_list:
             return {"success":False, "data":[], "message":"Data not found."}
