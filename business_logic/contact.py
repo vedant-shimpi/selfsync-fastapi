@@ -12,19 +12,34 @@ async def add_contact(contact: CreateContact):
     try:
         contact_collection.insert_one(contact.model_dump())
 
-        # Decide the template based on contact_us_by
         if contact.contact_us_by == "contact":
-            template = "contact_us_thankyou.html"
+            user_template = "contact_us_thankyou.html"
+            support_template = "contact_us_backoffice.html"
         elif contact.contact_us_by == "demo":
-            template = "schedule_demo_thankyou.html"
+            user_template = "schedule_demo_thankyou.html"
+            support_template = "schedule_demo_backoffice.html"
         else:
-            template = "default.html" 
+            user_template = "default.html"
+            support_template = "default.html" 
 
         send_html_email(
             subject="Your contact info was submitted successfully",
             recipient=contact.email,
-            template_name=template,
+            template_name=user_template,
             context={"first_name": contact.first_name.capitalize()}
+        )
+
+        send_html_email(
+            subject=f"New {contact.contact_us_by.capitalize()} Submission",
+            recipient="pooja.more@digikore.com",
+            template_name=support_template,
+            context={
+                "first_name": contact.first_name,
+                "last_name": contact.last_name,
+                "email": contact.email,
+                "contact_us_by": contact.contact_us_by,
+                "mobile": contact.mobile
+            }
         )
         
         return {"message": "Your data has been successfully submitted."}
