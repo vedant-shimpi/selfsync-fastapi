@@ -20,7 +20,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
         if not hr_users_document:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid token or user not found.")
         
-        assessments_document = await assessments_collection.find_one({"_id":request.assessment_id})
+        assessments_document = await assessments_collection.find_one({"assessment_pk":request.assessment_id})
         if not assessments_document:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assessment not found.")
         
@@ -44,7 +44,7 @@ async def add_candidate(request:AddCandidateSchemaRequest, curr_hr: dict = Depen
                 "updated_at":now_time
             }
             await position_collection.insert_one(position_details)
-            position_document = position_collection.find_one({"_id":str_uuid_id})
+            position_document = position_collection.find_one({"position_pk":str_uuid_id})
 
         for candidate_email in request.emails:
             str_uuid_id = str(uuid.uuid4())
