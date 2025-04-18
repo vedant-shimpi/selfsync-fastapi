@@ -70,7 +70,7 @@ async def get_questions_by_assessment(request: AssessmentRequest,
         # questions = await questions_cursor.to_list(length=None)
         question_ids = bank.get("question_ids", [])
         questions_cursor = questions_collection.find({
-            "_id": {"$in": question_ids}
+            "question_id": {"$in": question_ids}
         })
         questions = await questions_cursor.to_list(length=None)
 
