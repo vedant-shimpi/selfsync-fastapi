@@ -10,7 +10,6 @@ router = APIRouter()
 def remove_question_data(questions):
     clean_list = []
 
-    print("shilpa,", questions)
     for question in questions:
         cleaned = {
             "question_id": str(question["question_id"]),
