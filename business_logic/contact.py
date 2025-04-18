@@ -23,7 +23,7 @@ async def add_contact(contact: CreateContact):
             support_template = "default.html" 
 
         send_html_email(
-            subject="Your contact info was submitted successfully",
+            subject=f"Your {contact.contact_us_by} info was submitted successfully",
             recipient=contact.email,
             template_name=user_template,
             context={"first_name": contact.first_name.capitalize()}
@@ -31,7 +31,7 @@ async def add_contact(contact: CreateContact):
 
         send_html_email(
             subject=f"New {contact.contact_us_by.capitalize()} Submission",
-            recipient=" support@selfsync.ai",
+            recipient="support@selfsync.ai",
             template_name=support_template,
             context={
                 "first_name": contact.first_name,

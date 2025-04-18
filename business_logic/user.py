@@ -12,7 +12,15 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
     try:
         user_id = current_user["_id"]
 
-        user = await users_collection.find_one({"_id": user_id}, {"password": 0})
+        projection = {
+            "password": 0,
+            "otp": 0,
+            "otp_created_at": 0,
+            "login_otp_try_dt": 0,
+            "otp_verify_status": 0
+        }
+
+        user = await users_collection.find_one({"_id": user_id}, projection)
         if not user or (user["user_type"] == "manager" and user.get("is_deleted") == True):
             return {"success": False, "message": "User not found or deleted"}
 
@@ -42,7 +50,7 @@ async def get_userprofile(current_user: dict = Depends(get_current_user), db=Dep
                     "manager_id": manager["_id"],
                     "user_type": "manager",
                     "is_deleted": False
-                }, {"password": 0})
+                }, projection)
 
                 if manager_user:
                     manager["_id"] = str(manager["_id"])
