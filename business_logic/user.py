@@ -168,10 +168,16 @@ async def deactivate_manager(
 @router.post("/dashboard_count", response_model=dict)
 async def get_dashboard_count(current_user: dict = Depends(get_current_user),db=Depends(get_db)):
     
-    hr_id = current_user["_id"]
+    hr_id = current_user["user_pk"]
     
     try:
-        count = await db["candidate"].count_documents({"hr_id":hr_id})
-        return {"assessment_count": count}
+        hr_candidate_count = await db["candidate"].count_documents({"hr_id":hr_id})
+        assessment_completed_count = await db["candidate"].count_documents({"is_assessment_completed":True})
+        assessment_not_completed_count = await db["candidate"].count_documents({"is_assessment_completed":False})
+        
+        return {"assessment_count": hr_candidate_count,
+                "assessment_completed_count":assessment_completed_count,
+                "assessment_not_completed_count":assessment_not_completed_count
+                }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
