@@ -119,7 +119,7 @@ async def save_bulk_answer_papers(
 
 @router.get("/get_reports", response_model=ReportData)
 async def get_report(request: CandidateRequest, db=Depends(get_db)):
-    report = await report_table_collection.find_one({"candidate_id": request.candidate_id})
+    report = await report_table_collection.find_one({"candidate_id": request.candidate_id, "status": "completed"})
     if not report:
         raise HTTPException(status_code=404, detail="Report not found for the given candidate_id.")
     
