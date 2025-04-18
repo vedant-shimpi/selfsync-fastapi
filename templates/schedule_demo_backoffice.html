@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Schedule Demo | SelfsyncAi Back Office</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --primary: #7c3aed;
+        --primary-light: #8b5cf6;
+        --primary-dark: #6d28d9;
+        --secondary: #f0e9ff;
+        --accent: #f59e0b;
+        --text: #1e293b;
+        --text-light: #64748b;
+        --background: #f8fafc;
+        --card: #ffffff;
+        --border: #e2e8f0;
+      }
+      
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: var(--background);
+        margin: 0;
+        padding: 40px 20px;
+        color: var(--text);
+        line-height: 1.6;
+      }
+      
+      .container {
+        max-width: 840px;
+        margin: 0 auto;
+        background-color: var(--card);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      
+      .container:hover {
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      }
+      
+      .header {
+        background: linear-gradient(135deg, #b79bf8 0%, #8a5cf6 100%);
+        color: white;
+        text-align: center;
+        padding: 40px 30px;
+      }
+      
+      .header::before {
+        content: "";
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+      }
+      
+      .header::after {
+        content: "";
+        position: absolute;
+        bottom: -80px;
+        left: -30px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+      }
+      
+      .header-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .header p {
+        font-weight: 300;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+        letter-spacing: 0.5px;
+      }
+      
+      .content {
+        padding: 40px;
+      }
+      
+      .user-details {
+        background-color: var(--secondary);
+        border-left: 4px solid var(--primary);
+        padding: 30px;
+        border-radius: 0 12px 12px 0;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+      }
+      
+      .user-details:hover {
+        transform: translateX(5px);
+      }
+      
+      .user-details::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(123, 59, 237, 0.05) 0%, rgba(123, 59, 237, 0) 100%);
+      }
+      
+      .user-details-title {
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin-bottom: 20px;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      
+      .user-details-title::before {
+        content: "";
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        margin-right: 12px;
+      }
+      
+      .detail-row {
+        display: flex;
+        margin: 18px 0;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+      }
+      
+      .detail-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      
+      .detail-label {
+        font-weight: 500;
+        color: var(--text-light);
+        width: 200px;
+        flex-shrink: 0;
+        font-size: 15px;
+      }
+      
+      .detail-value {
+        color: var(--text);
+        font-weight: 500;
+        flex-grow: 1;
+      }
+      
+      .demo-info {
+        background-color: #fff9f0;
+        border-left: 4px solid var(--accent);
+        padding: 25px;
+        border-radius: 0 12px 12px 0;
+        margin: 30px 0;
+      }
+      
+      .demo-info-title {
+        font-weight: 600;
+        color: #b45309;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+      
+      .demo-info-title svg {
+        margin-right: 10px;
+      }
+      
+      .actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 40px;
+        justify-content: flex-end;
+      }
+      
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+        color: white;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(109, 40, 217, 0.15);
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .button::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(109, 40, 217, 0.25);
+      }
+      
+      .button:hover::after {
+        opacity: 1;
+      }
+      
+      .button.secondary {
+        background: white;
+        color: var(--text);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border);
+      }
+      
+      .button.secondary:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      
+      .footer {
+        background-color: var(--secondary);
+        text-align: center;
+        padding: 25px;
+        font-size: 14px;
+        color: var(--text-light);
+        border-top: 1px solid var(--border);
+      }
+      
+      .footer p {
+        margin: 5px 0;
+      }
+      
+      .footer p:first-child {
+        font-weight: 500;
+        color: var(--text);
+      }
+      
+      /* Animation */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .content > * {
+        animation: fadeIn 0.4s ease forwards;
+      }
+      
+      .detail-row {
+        animation-delay: calc(var(--order) * 0.1s);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-title">Schedule Demo Request</div>
+        <p>User Details</p>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <div class="user-details">
+          <div class="user-details-title">Basic Information</div>
+
+          <div class="detail-row" style="--order: 1">
+            <div class="detail-label">Full Name:</div>
+            <div class="detail-value">{{first_name}} {{last_name}}</div>
+          </div>
+
+          <div class="detail-row" style="--order: 2">
+            <div class="detail-label">Email Address:</div>
+            <div class="detail-value">{{email}}</div>
+          </div>
+
+          <div class="detail-row" style="--order: 3">
+            <div class="detail-label">Mobile Number:</div>
+            <div class="detail-value">{{mobile}}</div>
+          </div>
+
+          <!-- <div class="detail-row" style="--order: 4">
+            <div class="detail-label">Company Name:</div>
+            <div class="detail-value">{{contact_us_by}}</div>
+          </div> -->
+          
+          <!-- <div class="detail-row" style="--order: 5">
+            <div class="detail-label">Registration Date:</div>
+            <div class="detail-value">{{date}}</div>
+          </div>
+        </div> -->
+
+        <div class="demo-info">
+          <div class="demo-info-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 8V12" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 16H12.01" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Demo Scheduling Required
+          </div>
+          <p>This user has requested a product demonstration. Please schedule a suitable time and confirm via email.</p>
+        </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>SelfsyncAi Back Office - Restricted Access</p>
+        <p>© 2025 Digikore Studios Private Limited. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
