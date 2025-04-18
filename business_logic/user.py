@@ -7,10 +7,6 @@ from bson import ObjectId
 
 router = APIRouter()
 
-
-
-router = APIRouter()
-
 @router.get("/get_user_details", response_model=dict)
 async def get_userprofile(current_user: dict = Depends(get_current_user), db=Depends(get_db)):
     try:
