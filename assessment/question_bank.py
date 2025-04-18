@@ -9,9 +9,11 @@ router = APIRouter()
 
 def remove_question_data(questions):
     clean_list = []
+
+    print("shilpa,", questions)
     for question in questions:
         cleaned = {
-            "_id": str(question["_id"]),
+            "question_id": str(question["question_id"]),
             "question_text": question["question_text"],
             "category": question.get("category"),
             "type": question.get("type"),
@@ -64,22 +66,19 @@ async def get_questions_by_assessment(request: AssessmentRequest,
         if not candidate:
             return JSONResponse(status_code=404, content={"success": False, "message": "Candidate already finished exam!"})
 
-        # Fetch questions
-        # questions_cursor = questions_collection.find({
-        #     "_id": {"$in": question_ids}})
-        # questions = await questions_cursor.to_list(length=None)
         question_ids = bank.get("question_ids", [])
+
         questions_cursor = questions_collection.find({
             "question_id": {"$in": question_ids}
         })
-        questions = await questions_cursor.to_list(length=None)
 
+        questions = await questions_cursor.to_list(length=None)
         cleaned_questions = remove_question_data(questions)
 
         return {
             "success": True,
             # "assessment_name": assessment_name,
-             "subject": request.subject_name,
+            "subject": request.subject_name,
             "total_questions": len(cleaned_questions),
             "questions": cleaned_questions
         }
